@@ -36,9 +36,6 @@
           >
             <i class="fa-solid fa-syringe"></i>
           </button>
-          <button class="rail-item" data-section="pacientes" title="">
-            <i class="fa-solid fa-users"></i>
-          </button>
           <button class="rail-item" data-section="citas" title="Citas">
             <i class="fa-solid fa-calendar-check"></i>
           </button>
@@ -48,12 +45,14 @@
           <button class="rail-item" data-section="perfil" title="Perfil">
             <i class="fa-solid fa-id-card"></i>
           </button>
-          <button
-            class="rail-item"
-            data-section="qr"
-            title="QR"
-          >
+          <button class="rail-item" data-section="qr" title="QR">
             <i class="fa-solid fa-qrcode"></i>
+          </button>
+          <button class="rail-item" data-section="usuarios" title=">Usuarios">
+            <i class="fa-solid fa-users"></i>
+          </button>
+          <button class="rail-item" data-section="admin" title="Admin usuarios">
+            <i class="fa-solid fa-user-shield"></i>
           </button>
         </nav>
 
@@ -68,6 +67,66 @@
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </aside>
+      <!-- Modal: Cartilla del usuario -->
+      <div class="pac-modal" id="modalCartillaUsuario">
+        <div class="pac-modal-backdrop"></div>
+        <div class="pac-modal-card pac-modal-cartilla">
+          <div class="pac-modal-head">
+            <div>
+              <h3 id="cartillaUsuarioTitulo">Cartilla de vacunación</h3>
+              <p class="muted" id="cartillaUsuarioSubtitulo">
+                Esquema de vacunas registradas para este usuario.
+              </p>
+            </div>
+            <button class="pac-modal-close" data-close-pac-modal>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="pac-modal-body">
+            <!-- Zona que se usará para imprimir/descargar -->
+            <div id="cartillaPrintArea">
+              <div class="cartilla-header">
+                <div class="cartilla-logo">
+                  <img src="logo.jpg" alt="Logo eCartilla" />
+                </div>
+                <div class="cartilla-header-text">
+                  <b id="cartillaNombreUsuario">Nombre del usuario</b>
+                  <span id="cartillaEmailUsuario">correo@example.com</span>
+                  <small>Cartilla digital de vacunación</small>
+                </div>
+              </div>
+
+              <div class="dash-card cartilla-card">
+                <b>Vacunas registradas</b>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Vacuna</th>
+                      <th>Fecha</th>
+                      <th>Dosis</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cartillaTablaBody">
+                    <!-- filas generadas por JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- fin cartillaPrintArea -->
+
+            <div class="cartilla-actions">
+              <button type="button" class="btn-ghost" data-close-pac-modal>
+                Cerrar
+              </button>
+              <button type="button" class="btn-azul" id="btnDescargarCartilla">
+                <i class="fa-solid fa-download"></i> Descargar cartilla
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Área principal -->
       <div class="main">
@@ -230,36 +289,129 @@
             </div>
           </div>
 
-          <!-- Pacientes -->
-          <section class="content-section" data-section-panel="pacientes">
-            <h2>Pacientes / Familia</h2>
+          <!-- Usuarios (Admin / Médico / Ciudadano) -->
+          <section class="content-section" data-section-panel="usuarios">
+            <h2>Usuarios del sistema</h2>
             <p class="muted">
-              Administra las cartillas de tus hijos o familiares.
+              Administra las cuentas de ciudadanos y personal médico registrados
+              en eCartilla.
             </p>
 
             <div class="dash-card">
-              <b>Pacientes registrados</b>
-              <table>
+              <div class="usuarios-header">
+                <b>Listado de usuarios</b>
+                <div class="usuarios-filtros">
+                  <button
+                    class="usuarios-pill usuarios-pill-activo"
+                    data-usuarios-filter="todos"
+                    type="button"
+                  >
+                    Todos
+                  </button>
+                  <button
+                    class="usuarios-pill"
+                    data-usuarios-filter="ciudadano"
+                    type="button"
+                  >
+                    Ciudadanos
+                  </button>
+                  <button
+                    class="usuarios-pill"
+                    data-usuarios-filter="medico"
+                    type="button"
+                  >
+                    Personal médico
+                  </button>
+                </div>
+              </div>
+
+              <table class="tabla-usuarios">
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Relación</th>
-                    <th>Vacunas al día</th>
-                    <th>Próximas dosis</th>
+                    <th>Tipo</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th style="width: 190px">Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>Luis Garcia</td>
-                    <td>Hijo</td>
-                    <td>5</td>
-                    <td>1 (Influenza)</td>
+                <tbody id="tablaUsuariosBody">
+                  <!-- Ejemplos demo -->
+                  <tr
+                    data-user-id="1"
+                    data-user-nombre="Juan Pérez"
+                    data-user-tipo="ciudadano"
+                    data-user-email="juan@example.com"
+                  >
+                    <td>Juan Pérez</td>
+                    <td>Ciudadano</td>
+                    <td>juan@example.com</td>
+                    <td>Usuario</td>
+                    <td><span class="badge badge-activo">Activo</span></td>
+                    <td>
+                      <div class="usuarios-actions">
+                        <button
+                          class="btn-usr-icon ver-cartilla-usuario"
+                          type="button"
+                          title="Ver cartilla"
+                        >
+                          <i class="fa-solid fa-syringe"></i>
+                        </button>
+                        <button
+                          class="btn-usr-icon editar-usuario"
+                          type="button"
+                          title="Editar datos"
+                        >
+                          <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button
+                          class="btn-usr-icon eliminar-usuario"
+                          type="button"
+                          title="Eliminar usuario"
+                        >
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                  <tr>
-                    <td>Maria Florencia</td>
-                    <td>Hija</td>
-                    <td>6</td>
-                    <td>0</td>
+
+                  <tr
+                    data-user-id="2"
+                    data-user-nombre="Dra. Ana López"
+                    data-user-tipo="medico"
+                    data-user-email="ana.medico@example.com"
+                  >
+                    <td>Dra. Ana López</td>
+                    <td>Personal médico</td>
+                    <td>ana.medico@example.com</td>
+                    <td>Pediatra</td>
+                    <td><span class="badge badge-activo">Activo</span></td>
+                    <td>
+                      <div class="usuarios-actions">
+                        <button
+                          class="btn-usr-icon ver-cartilla-usuario"
+                          type="button"
+                          title="Ver cartilla"
+                        >
+                          <i class="fa-solid fa-syringe"></i>
+                        </button>
+                        <button
+                          class="btn-usr-icon editar-usuario"
+                          type="button"
+                          title="Editar datos"
+                        >
+                          <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button
+                          class="btn-usr-icon eliminar-usuario"
+                          type="button"
+                          title="Eliminar usuario"
+                        >
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -298,31 +450,341 @@
           </section>
 
           <!--Mi Perfil-->
-          <section
-            class="content-section"
-            data-section-panel="perfil"
-            id="perfil"
-          >
+          <!-- Mi perfil -->
+          <section class="content-section" data-section-panel="perfil">
             <h2>Mi perfil</h2>
             <p class="muted">
-              En esta ventana podrás realizar cambios de nuestro perfil en
-              general.
+              En esta ventana podrás actualizar tus datos de contacto, dirección
+              y cuenta.
             </p>
 
-            <div class="dash-card">
-              <b>Informacion en general</b>
-              <p></p>
+            <div class="perfil-layout">
+              <!-- Columna izquierda: tarjeta resumen -->
+              <aside class="perfil-card">
+                <div class="perfil-avatar">
+                  <!-- si luego quieres foto real, cambias el span por una img -->
+                  <span id="perfilAvatarIniciales">US</span>
+                </div>
+
+                <div class="perfil-nombre" id="perfilNombre">
+                  Usuario invitado
+                </div>
+
+                <div class="perfil-rol" id="perfilRol">
+                  Usuario · Padre de familia
+                </div>
+
+                <div class="perfil-lista">
+                  <div class="perfil-item">
+                    <i class="fa-solid fa-id-card"></i>
+                    <div>
+                      <small>CURP</small>
+                      <span id="perfilCurp">XXXX000000XXXXXX00</span>
+                    </div>
+                  </div>
+                  <div class="perfil-item">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <div>
+                      <small>Tipo de usuario</small>
+                      <span id="perfilTipoUsuario">Ciudadano</span>
+                    </div>
+                  </div>
+                  <div class="perfil-item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <div>
+                      <small>Correo</small>
+                      <span id="perfilCorreo">correo@example.com</span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              <!-- Columna derecha: formulario -->
+              <div class="perfil-form-col">
+                <div class="perfil-form-col">
+                  <!-- Sección 1: Datos de contacto -->
+                  <div
+                    class="dash-card perfil-card-form perfil-acc-item perfil-acc-open"
+                  >
+                    <button class="perfil-acc-head" type="button">
+                      <div class="perfil-section-title">
+                        <div class="dot"></div>
+                        <span>Datos de contacto</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+
+                    <div class="perfil-acc-body">
+                      <div class="perfil-grid">
+                        <label class="perfil-field perfil-field-full">
+                          <span>Correo electrónico</span>
+                          <input
+                            type="email"
+                            id="perfilCorreoInput"
+                            placeholder="tu.correo@ejemplo.com"
+                          />
+                        </label>
+
+                        <label class="perfil-field">
+                          <span>Número de celular</span>
+                          <input
+                            type="tel"
+                            id="perfilCelularInput"
+                            placeholder="868 000 0000"
+                          />
+                        </label>
+
+                        <label class="perfil-field">
+                          <span>Número de teléfono (opcional)</span>
+                          <input
+                            type="tel"
+                            id="perfilTelefonoInput"
+                            placeholder="Casa u oficina"
+                          />
+                        </label>
+                      </div>
+                      <p class="muted perfil-auto-msg">
+                        Los cambios en esta sección se guardan automáticamente.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Sección 2: Dirección / domicilio / consultorio -->
+                  <div class="dash-card perfil-card-form perfil-acc-item">
+                    <button class="perfil-acc-head" type="button">
+                      <div class="perfil-section-title">
+                        <div class="dot"></div>
+                        <span>Datos del domicilio</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+
+                    <div class="perfil-acc-body">
+                      <div class="perfil-grid">
+                        <label class="perfil-field perfil-field-full">
+                          <span>Calle</span>
+                          <input
+                            type="text"
+                            id="perfilCalleInput"
+                            placeholder="Ej. Nicolás Guerra"
+                          />
+                        </label>
+
+                        <label class="perfil-field">
+                          <span>Número exterior</span>
+                          <input
+                            type="text"
+                            id="perfilNumExtInput"
+                            placeholder="123"
+                          />
+                        </label>
+                        <label class="perfil-field">
+                          <span>Número interior</span>
+                          <input
+                            type="text"
+                            id="perfilNumIntInput"
+                            placeholder="Depto / Consultorio"
+                          />
+                        </label>
+
+                        <label class="perfil-field">
+                          <span>Estado</span>
+                          <input
+                            type="text"
+                            id="perfilEstadoInput"
+                            placeholder="Tamaulipas"
+                          />
+                        </label>
+                        <label class="perfil-field">
+                          <span>Ciudad</span>
+                          <input
+                            type="text"
+                            id="perfilCiudadInput"
+                            placeholder="H. Matamoros"
+                          />
+                        </label>
+
+                        <label class="perfil-field">
+                          <span>Colonia</span>
+                          <input
+                            type="text"
+                            id="perfilColoniaInput"
+                            placeholder="Colonia"
+                          />
+                        </label>
+                        <label class="perfil-field">
+                          <span>Código postal</span>
+                          <input
+                            type="text"
+                            id="perfilCpInput"
+                            placeholder="87390"
+                          />
+                        </label>
+
+                        <label class="perfil-field perfil-field-full">
+                          <span>Entre calles</span>
+                          <input
+                            type="text"
+                            id="perfilEntreCallesInput"
+                            placeholder="Ej. Entre Av. Juárez y Calle Morelos"
+                          />
+                        </label>
+                      </div>
+                      <p class="muted perfil-auto-msg">
+                        Los cambios en esta sección se guardan automáticamente.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Sección 3: Cambiar contraseña (solo aquí botones) -->
+                  <div class="dash-card perfil-card-form perfil-acc-item">
+                    <button class="perfil-acc-head" type="button">
+                      <div class="perfil-section-title">
+                        <div class="dot"></div>
+                        <span>Cambiar contraseña</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+
+                    <div class="perfil-acc-body">
+                      <div class="perfil-grid">
+                        <label class="perfil-field">
+                          <span>Contraseña actual</span>
+                          <input
+                            type="password"
+                            id="perfilPassActual"
+                            placeholder="••••••••"
+                          />
+                        </label>
+                        <label class="perfil-field">
+                          <span>Nueva contraseña</span>
+                          <input
+                            type="password"
+                            id="perfilPassNueva"
+                            placeholder="Mínimo 8 caracteres"
+                          />
+                        </label>
+                        <label class="perfil-field">
+                          <span>Confirmar nueva contraseña</span>
+                          <input
+                            type="password"
+                            id="perfilPassConfirmar"
+                            placeholder="Repetir contraseña"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="perfil-actions">
+                        <button
+                          class="btn-ghost"
+                          type="button"
+                          id="btnPerfilPassCancelar"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          class="btn-azul"
+                          type="button"
+                          id="btnPerfilPassGuardar"
+                        >
+                          Guardar cambios
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
           <!--QR-->
           <section class="content-section" data-section-panel="qr">
             <h2>QR</h2>
-            <p class="muted">Aqui podras Generar y el qr de la Cartilla de Vacunación</p>
+            <p class="muted">
+              Aqui podras Generar y el qr de la Cartilla de Vacunación
+            </p>
 
             <div class="dash-card">
               <b>Generar Qr o PDF </b>
-              <p>Proximamente se podras generar tu QR o PPF para obtener tu cartilla de Vacunación</p>
+              <p>
+                Proximamente se podras generar tu QR o PPF para obtener tu
+                cartilla de Vacunación
+              </p>
+            </div>
+          </section>
+          <!-- Admin usuarios -->
+          <section class="content-section" data-section-panel="admin">
+            <h2>Administrar usuarios</h2>
+            <p class="muted">
+              Desde aquí puedes validar cuentas nuevas y activar el acceso a
+              eCartilla.
+            </p>
+
+            <div class="cards-grid">
+              <div class="dash-card">
+                <b>Usuarios pendientes</b>
+                <div class="value" id="adminCountPendientes">3</div>
+                <div class="tag">
+                  Esperando validación en el centro de salud
+                </div>
+              </div>
+              <div class="dash-card">
+                <b>Usuarios activos</b>
+                <div class="value" id="adminCountActivos">12</div>
+                <div class="tag">Con acceso a su eCartilla</div>
+              </div>
+            </div>
+
+            <div class="dash-card" style="margin-top: 1.25rem">
+              <b>Solicitudes de registro pendientes</b>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>CURP</th>
+                    <th>Estado</th>
+                    <th style="width: 140px">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="adminPendientesBody">
+                  <!-- Filas demo / luego las rellenamos con JS -->
+                  <tr>
+                    <td>Juan Pérez</td>
+                    <td>juan@example.com</td>
+                    <td>PEPJ800101HDFRRN09</td>
+                    <td>
+                      <span class="badge badge-pendiente">Pendiente</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn-table btn-table-primary"
+                        data-activar-usuario="1"
+                      >
+                        Activar
+                      </button>
+                      <button class="btn-table btn-table-ghost">Ver</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>María López</td>
+                    <td>maria@example.com</td>
+                    <td>LOPM020305MDFXXR01</td>
+                    <td>
+                      <span class="badge badge-pendiente">Pendiente</span>
+                    </td>
+                    <td>
+                      <button
+                        class="btn-table btn-table-primary"
+                        data-activar-usuario="2"
+                      >
+                        Activar
+                      </button>
+                      <button class="btn-table btn-table-ghost">Ver</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
         </main>
