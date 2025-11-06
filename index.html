@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>eCartilla · Matamoros</title>
+    <meta
+      name="description"
+      content="Cartilla de Vacunación Digital — registra, consulta y controla tus vacunas desde cualquier dispositivo."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header aria-label="Barra superior" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="#top">
+          <span class="logo" aria-hidden="true">
+            <img src="logo.jpg" alt="Logo eCartilla" />
+          </span>
+          <span class="brand-title"
+            ><b>eCartilla</b><small>Matamoros</small></span
+          >
+        </a>
+
+        <nav class="primary" aria-label="Navegación principal">
+          <a class="nav-link" href="#beneficios">Beneficios</a>
+          <a class="nav-link" href="#equipo">Conócenos</a>
+          <a class="nav-link" href="#faq">Preguntas</a>
+          <a class="nav-link" href="#contacto">Contacto</a>
+        </nav>
+
+        <div class="actions" aria-label="Acciones principales">
+          <!--<a class="btn btn-ghost" href="login.html#inicio_sesion"
+            >Iniciar sesión</a
+          >-->
+          <a href="login.html#signin" class="btn btn-ghost">Iniciar sesión</a>
+          <a href="login.html#signup" class="btn btn-verde" id="ctaComienza">Regístrate</a>
+          <!--<a class="btn btn-azul" href="#equipo">Conócenos</a>-->
+          <!--<a class="btn btn-verde" id="ctaComienza" href="login.html#registro">Comienza ahora</a>-->
+        </div>
+
+        <button
+          class="menu-btn"
+          id="menuBtn"
+          aria-expanded="false"
+          aria-controls="drawer"
+          aria-label="Abrir menú"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="drawer" class="drawer" role="region" aria-label="Menú móvil">
+        <a class="item" href="#beneficios">Beneficios</a>
+        <a class="item" href="#equipo">Conócenos</a>
+        <a class="item" href="#faq">Preguntas</a>
+        <a class="item" href="#contacto">Contacto</a>
+        <div class="group">
+          <a class="btn btn-ghost" href="#login">Iniciar sesión</a>
+          <a class="btn btn-azul" href="#equipo">Conócenos</a>
+          <a class="btn btn-verde" href="#registro">Comienza ahora</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section id="comienza" class="hero">
+        <div class="blob-a" aria-hidden="true"></div>
+        <div class="blob-b" aria-hidden="true"></div>
+        <div class="container hero-grid">
+          <div class="reveal">
+            <h1>
+              Tu cartilla de vacunación,
+              <span style="color: var(--verde)">digital</span> y siempre contigo
+            </h1>
+            <p>
+              Registra dosis, consulta tu historial y recibe recordatorios desde
+              cualquier dispositivo. Seguridad, accesibilidad y control en una
+              sola plataforma.
+            </p>
+            <div class="hero-cta">
+              <button class="btn btn-verde" id="btnDemo">Como Funciona?</button>
+              <a class="btn btn-azul" href="#equipo">Conócenos</a>
+            </div>
+            <ul
+              style="margin-top: 1rem; color: var(--muted); padding-left: 1rem"
+            >
+              <li style="margin: 0.35rem 0">Datos cifrados y protegidos</li>
+              <li style="margin: 0.35rem 0">
+                Recordatorio de dosis y próximas citas
+              </li>
+              <li style="margin: 0.35rem 0">Diseño accesible y responsivo</li>
+              <li style="margin: 0.35rem 0">Generación de QR</li>
+              <li style="margin: 0.35rem 0">
+                Disminución de Perdidas de datos
+              </li>
+            </ul>
+          </div>
+          <div class="reveal">
+            <div class="card" style="padding: 1.25rem">
+              <div class="mock">
+                <div
+                  class="vax-card"
+                  role="group"
+                  aria-label="Cartilla de Vacunación"
+                >
+                  <div class="vax-card-head">
+                    <img src="logo.jpg" alt="Icono cartilla" />
+                    <span>Cartilla de Vacunación</span>
+                  </div>
+
+                  <div class="vax-card-body">
+                    <div class="vax-field">
+                      <b>Nombre</b><span>Paciente de ejemplo</span>
+                    </div>
+                    <div class="vax-field">
+                      <b>CURP</b><span>XXXX000000HXXRNN00</span>
+                    </div>
+                    <div>
+                      <b>Vacunas</b>
+                      <div class="vax-chips">
+                        <span class="chip ok">COVID‑19 · 3/3</span>
+                        <span class="chip ok">Hepatitis B · 2/2</span>
+                        <span class="chip due">Influenza · Próxima</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="vax-card-foot">
+                    <span style="font-size: 0.8rem; color: var(--muted)"
+                      >ID: EC-00123</span
+                    >
+                    <div class="qr" aria-hidden="true"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pill-grid">
+                <div class="pill">
+                  <b>Accesible</b>
+                  <div class="muted">Web/Móvil</div>
+                </div>
+                <div class="pill">
+                  <b>Segura</b>
+                  <div class="muted">Cifrado</div>
+                </div>
+                <div class="pill">
+                  <b>Recordatorios</b>
+                  <div class="muted">Próximas dosis</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Beneficios -->
+      <section id="beneficios" class="section">
+        <div class="container reveal">
+          <h2>Beneficios</h2>
+          <div class="cards">
+            <div class="card-item">
+              <b>Accesible</b>
+              <div class="muted">Funciona en cualquier dispositivo.</div>
+            </div>
+            <div class="card-item">
+              <b>Segura</b>
+              <div class="muted">Protección de datos mediante cifrado.</div>
+            </div>
+            <div class="card-item">
+              <b>Organizada</b>
+              <div class="muted">Control de dosis y recordatorios.</div>
+            </div>
+            <div class="card-item">
+              <b>Colaborativa</b>
+              <div class="muted">Útil para clínicas y escuelas.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conócenos / Equipo -->
+      <section id="equipo" class="section">
+        <div class="container reveal">
+          <h2>Conócenos</h2>
+          <p class="muted" style="margin-top: 0.5rem">
+            Equipo 1 el mas very good.
+          </p>
+          <div class="team">
+            <div class="member">
+              <div class="avatar">XA</div>
+              <div style="margin-top: 0.5rem"><b>Ximena Amador</b></div>
+              <div class="muted"></div>
+              <a href="mailto:ximena@itm.edu.mx" class="muted"></a>
+            </div>
+            <div class="member">
+              <div class="avatar">LR</div>
+              <div style="margin-top: 0.5rem"><b>Luis Reinhardt</b></div>
+              <div class="muted"></div>
+              <a href="mailto:luisgei@lgbt.edu.mx" class="muted"></a>
+            </div>
+            <div class="member">
+              <div class="avatar">BR</div>
+              <div style="margin-top: 0.5rem"><b>Brenda Rosendo</b></div>
+              <div class="muted"></div>
+              <a href="mailto:brenda@itm.edu.mx" class="muted"></a>
+            </div>
+            <div class="member">
+              <div class="avatar">OS</div>
+              <div style="margin-top: 0.5rem"><b>Oscar Salazar</b></div>
+              <div class="muted"></div>
+              <a href="mailto:oscar@itm.edu.mx" class="muted"></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preguntas frecuentes (FAQ) -->
+      <section id="faq" class="section">
+        <div class="container reveal">
+          <h2>Preguntas frecuentes</h2>
+          <div class="faq">
+            <details>
+              <summary>¿Vamos a pasar la Materia?</summary>
+              <p>Hechandole <b>Ganas</b>!</p>
+            </details>
+            <details>
+              <summary>¿Recibiré recordatorios de próximas dosis?</summary>
+              <p>
+                Sí. Configuramos notificaciones según el esquema de cada vacuna
+                y tu edad.
+              </p>
+            </details>
+            <details>
+              <summary>¿Mis datos están seguros?</summary>
+              <p>
+                Usamos cifrado en tránsito y en reposo; además, el acceso se
+                protege con autenticación.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modal de Demo -->
+      <div
+        class="modal"
+        id="modalDemo"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="demoTitle"
+      >
+        <div class="modal-card">
+          <div class="modal-head">
+            <b id="demoTitle">Demo rápida</b>
+            <button class="icon-btn" id="closeDemo" aria-label="Cerrar">
+              ✕
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="muted">
+              Aquí podrías colocar un video corto o un carrusel de capturas de
+              pantalla del flujo de registro.
+            </p>
+            <div class="cards" style="margin-top: 1rem">
+              <div class="card-item">Paso 1: Registro</div>
+              <div class="card-item">Paso 2: Agregar vacuna</div>
+              <div class="card-item">Paso 3: Recordatorios</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toasts -->
+      <div class="toast-wrap" id="toasts"></div>
+    </main>
+
+    <footer id="contacto">
+      <div class="container footer-grid">
+        <div>
+          <b>Ingeneria en Sistemas Computacionales</b>
+          <div class="muted" style="margin-top: 0.5rem">
+            Instituto Tecnológico de Matamoros
+          </div>
+        </div>
+        <div>
+          <b>Contáctanos</b>
+          <ul
+            class="muted"
+            style="list-style: none; padding: 0; margin: 0.5rem 0 0 0"
+          >
+            <li>Email: contacto@cartilladigital.mx</li>
+            <li>Sitio: www.cartillavacunacion.mx</li>
+            <li>Dirección: ITM · Matamoros, Tamps.</li>
+          </ul>
+        </div>
+        <div>
+          <b>Redes</b>
+          <ul
+            class="muted"
+            style="list-style: none; padding: 0; margin: 0.5rem 0 0 0"
+          >
+            <li>Facebook: /cartilladigital</li>
+            <li>Instagram: @cartilla_vacunacion</li>
+            <li>X (Twitter): @cartilladigital</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2025 Cartilla de Vacunación Digital</div>
+    </footer>
+    <script src="main.js"></script>
+  </body>
+</html>

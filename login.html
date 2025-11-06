@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eCartilla · Iniciar sesión</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="login.css" />
+
+    <!-- Iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+
+  <body class="login-page">
+    <div class="container" id="container">
+      <!--REGISTRO-->
+      <div class="form-container sign-up">
+        <form id="formRegistro">
+          <h1>Crea tu cuenta</h1>
+
+          <div class="social-icons">
+            <a href="#" class="icon"><i class="fa-brands fa-google"></i></a>
+            <a href="#" class="icon"><i class="fa-brands fa-apple"></i></a>
+            <a href="#" class="icon"><i class="fa-brands fa-microsoft"></i></a>
+          </div>
+
+          <span>o utiliza tu correo electrónico para registrarte</span>
+
+          <input type="text" id="regNombre" placeholder="Nombre(s)" />
+          <input
+            type="text"
+            id="regApellidoPaterno"
+            placeholder="Apellido Patetno"
+          />
+          <input
+            type="text"
+            id="regApellidoMaterno"
+            placeholder="Apellido Materno"
+          />
+          <input
+            type="email"
+            id="regCorreo"
+            placeholder="Correo electrónico"
+            required
+          />
+          <input type="text" id="regCurp" placeholder="CURP" />
+          <input
+            type="password"
+            id="regPassword"
+            placeholder="Contraseña"
+            required
+          />
+          <label>
+            <input type="checkbox" required />
+            Acepto la
+            <a href="privacidad.html">política de privacidad</a>
+          </label>
+          <button class="btn-rojo--blanco" type="submit">Registrarse</button>
+          <a href="index.html">Volver al inicio</a>
+        </form>
+      </div>
+
+      <!-- INICIAR SESIÓN -->
+      <div class="form-container sign-in">
+        <form id="loginForm">
+          <h1>Iniciar sesión</h1>
+
+          <div class="social-icons">
+            <a href="#" class="icon"><i class="fa-brands fa-google"></i></a>
+            <a href="#" class="icon"><i class="fa-brands fa-apple"></i></a>
+            <a href="#" class="icon"><i class="fa-brands fa-microsoft"></i></a>
+          </div>
+
+          <span>o usa tu cuenta registrada</span>
+
+          <input
+            type="email"
+            id="loginCorreo"
+            placeholder="Correo electrónico"
+            required
+          />
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Contraseña"
+            required
+          />
+
+          <a href="#">¿Olvidaste tu contraseña?</a>
+
+          <button class="btn-rojo--blanco" type="submit">Iniciar sesión</button>
+          <a href="index.html">Volver al inicio</a>
+        </form>
+      </div>
+
+      <div class="toggle-container">
+        <div class="toggle">
+          <div class="toggle-panel toggle-left">
+            <h1>¡Bienvenido de nuevo!</h1>
+            <p>
+              Para seguir consultando tu cartilla digital, inicia sesión con tus
+              datos.
+            </p>
+            <button class="hidden" id="login" type="button">
+              Iniciar sesión
+            </button>
+          </div>
+          <div class="toggle-panel toggle-right">
+            <h1>Hola!</h1>
+            <p>
+              Registra tu correo para empezar a utilizar tu eCartilla y recibir
+              recordatorios de vacunación.
+            </p>
+            <button class="hidden" id="register" type="button">
+              Registrarse
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-modal" id="modalRegistroPendiente">
+      <div class="login-modal__backdrop"></div>
+      <div class="login-modal__content">
+        <div class="login-modal__icon">
+          <i class="fa-regular fa-id-card"></i>
+        </div>
+        <h3>Registro pendiente</h3>
+        <p>
+          Tu cuenta ha sido creada correctamente.<br />
+          Para activarla, acude a tu
+          <b>Centro de Salud más cercano</b> con tu identificación para
+          completar tu registro en eCartilla.
+        </p>
+        <button class="btn-rojo--blanco" id="btnModalAceptar">Aceptar</button>
+      </div>
+    </div>
+
+    <!-- JS del login -->
+    <script src="login.js"></script>
+  </body>
+</html>

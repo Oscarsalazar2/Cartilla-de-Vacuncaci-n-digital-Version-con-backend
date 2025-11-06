@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel · eCartilla</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="deshboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body class="dashboard">
+    <div class="layout">
+      <!-- Rail lateral -->
+      <aside class="side-rail">
+        <div class="rail-logo">
+          <img src="logo.jpg" alt="Logo eCartilla" />
+        </div>
+
+        <div class="rail-divider"></div>
+
+        <nav class="rail-nav">
+          <button
+            class="rail-item active"
+            data-section="resumen"
+            title="Inicio"
+          >
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <button
+            class="rail-item"
+            data-section="mis-vacunas"
+            title="Mis vacunas"
+          >
+            <i class="fa-solid fa-syringe"></i>
+          </button>
+          <button class="rail-item" data-section="pacientes" title="">
+            <i class="fa-solid fa-users"></i>
+          </button>
+          <button class="rail-item" data-section="citas" title="Citas">
+            <i class="fa-solid fa-calendar-check"></i>
+          </button>
+          <button class="rail-item" data-section="ajustes" title="Ajustes">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+          <button class="rail-item" data-section="perfil" title="Perfil">
+            <i class="fa-solid fa-id-card"></i>
+          </button>
+          <button
+            class="rail-item"
+            data-section="qr"
+            title="QR"
+          >
+            <i class="fa-solid fa-qrcode"></i>
+          </button>
+        </nav>
+
+        <div class="rail-bottom-space"></div>
+
+        <!-- Icono de salir abajo -->
+        <button
+          class="rail-item"
+          title="Cerrar sesión"
+          onclick="location.href='index.html'"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </aside>
+
+      <!-- Área principal -->
+      <div class="main">
+        <!-- Barra superior -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <!-- <div class="topbar-title" id="topbarTitle">Luis gei</div>-->
+            <!--<span class="topbar-pill">eCartilla · Demo</span>-->
+          </div>
+          <div class="topbar-right">
+            <button class="user-menu-btn" id="userMenuBtn" type="button">
+              <!-- Mini avatar también controlado por el JS -->
+              <div class="user-avatar-mini" id="userAvatarMini"></div>
+
+              <div class="user-text">
+                <span class="user-name" id="userName">Oscar Salazar</span>
+                <span class="user-role">Usuario</span>
+              </div>
+              <span class="chevron">▾</span>
+            </button>
+
+            <div class="user-dropdown" id="userDropdown">
+              <div
+                class="user-dropdown-item"
+                onclick="location.href='dashboard.html#perfil'"
+              >
+                <i class="fa-solid fa-user"></i> Ver perfil
+              </div>
+              <div
+                class="user-dropdown-item"
+                onclick="location.href='dashboard.html#notificaciones'"
+              >
+                <i class="fa-solid fa-bell"></i> Notificaciones
+              </div>
+              <div
+                class="user-dropdown-item logout"
+                onclick="location.href='login.html'"
+              >
+                <i class="fa-solid fa-power-off"></i> Cerrar sesión
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Contenido -->
+        <main class="content">
+          <!-- Resumen -->
+          <section class="content-section active" data-section-panel="resumen">
+            <h2>Resumen de tu cartilla</h2>
+            <p class="muted">
+              Bueno aqui se mira lo principal digan si esta bien.
+            </p>
+
+            <div class="cards-grid">
+              <div class="dash-card">
+                <b>Vacunas completas</b>
+                <div class="value">7</div>
+                <div class="tag">Esquema básico al día</div>
+              </div>
+              <div class="dash-card">
+                <b>Próximas dosis</b>
+                <div class="value">2</div>
+                <div class="tag">En los próximos 30 días</div>
+              </div>
+              <div class="dash-card">
+                <b>Alertas</b>
+                <div class="value">1</div>
+                <div class="tag">Revisa la vacuna de influenza</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Mis vacunas -->
+          <section class="content-section" data-section-panel="mis-vacunas">
+            <h2>Historial de vacunas</h2>
+            <p class="muted">
+              Consulta el historial de vacunas registradas en tu cartilla. Haz
+              clic en una vacuna para ver el detalle de cada dosis (fecha, marca
+              y lote).
+            </p>
+
+            <div class="dash-card">
+              <b>Vacunas registradas</b>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Vacuna</th>
+                    <th>Fecha</th>
+                    <th>Dosis</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Cada fila representa el resumen de una vacuna -->
+                  <tr
+                    class="vacuna-row"
+                    data-vacuna="covid19"
+                    data-vacuna-nombre="COVID-19"
+                  >
+                    <td>COVID-19</td>
+                    <td>12/03/2025</td>
+                    <td>3 / 3</td>
+                    <td>Completa</td>
+                  </tr>
+                  <tr
+                    class="vacuna-row"
+                    data-vacuna="hepB"
+                    data-vacuna-nombre="Hepatitis B"
+                  >
+                    <td>Hepatitis B</td>
+                    <td>09/01/2025</td>
+                    <td>2 / 2</td>
+                    <td>Completa</td>
+                  </tr>
+                  <tr
+                    class="vacuna-row"
+                    data-vacuna="influenza"
+                    data-vacuna-nombre="Influenza"
+                  >
+                    <td>Influenza</td>
+                    <td>—</td>
+                    <td>0 / 1</td>
+                    <td>Pendiente</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Modal de detalle de vacuna -->
+          <div class="modal-vacuna" id="modalVacuna">
+            <div class="modal-vacuna-backdrop" id="modalVacunaBackdrop"></div>
+            <div class="modal-vacuna-content">
+              <div class="modal-vacuna-header">
+                <h3 id="modalVacunaTitulo">Detalle de vacuna</h3>
+                <button
+                  type="button"
+                  class="modal-vacuna-close"
+                  id="modalVacunaCerrar"
+                ></button>
+              </div>
+              <div class="modal-vacuna-body">
+                <p id="modalVacunaDescripcion" class="muted">
+                  Aquí se mostrarán las dosis aplicadas.
+                </p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Dosis</th>
+                      <th>Fecha</th>
+                      <th>Marca</th>
+                      <th>Lote</th>
+                    </tr>
+                  </thead>
+                  <tbody id="modalVacunaTablaBody">
+                    <!-- Filas generadas por JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pacientes -->
+          <section class="content-section" data-section-panel="pacientes">
+            <h2>Pacientes / Familia</h2>
+            <p class="muted">
+              Administra las cartillas de tus hijos o familiares.
+            </p>
+
+            <div class="dash-card">
+              <b>Pacientes registrados</b>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Relación</th>
+                    <th>Vacunas al día</th>
+                    <th>Próximas dosis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Luis Garcia</td>
+                    <td>Hijo</td>
+                    <td>5</td>
+                    <td>1 (Influenza)</td>
+                  </tr>
+                  <tr>
+                    <td>Maria Florencia</td>
+                    <td>Hija</td>
+                    <td>6</td>
+                    <td>0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Citas -->
+          <section class="content-section" data-section-panel="citas">
+            <h2>Citas de vacunación</h2>
+            <p class="muted">
+              Visualiza y organiza tus citas con la clínica o centro de salud.
+            </p>
+
+            <div class="dash-card">
+              <b>Próximas citas</b>
+              <p class="muted">
+                No tienes citas registradas. Aquí aparecerán cuando se agreguen.
+              </p>
+            </div>
+          </section>
+
+          <!-- Ajustes -->
+          <section class="content-section" data-section-panel="ajustes">
+            <h2>Ajustes del sistema</h2>
+            <p class="muted">
+              Configura notificaciones, datos de tu cuenta y preferencias.
+            </p>
+
+            <div class="dash-card">
+              <b>Notificaciones</b>
+              <p>
+                Próximamente podrás activar/desactivar recordatorios por correo,
+                SMS o app.
+              </p>
+            </div>
+          </section>
+
+          <!--Mi Perfil-->
+          <section
+            class="content-section"
+            data-section-panel="perfil"
+            id="perfil"
+          >
+            <h2>Mi perfil</h2>
+            <p class="muted">
+              En esta ventana podrás realizar cambios de nuestro perfil en
+              general.
+            </p>
+
+            <div class="dash-card">
+              <b>Informacion en general</b>
+              <p></p>
+            </div>
+          </section>
+
+          <!--QR-->
+          <section class="content-section" data-section-panel="qr">
+            <h2>QR</h2>
+            <p class="muted">Aqui podras Generar y el qr de la Cartilla de Vacunación</p>
+
+            <div class="dash-card">
+              <b>Generar Qr o PDF </b>
+              <p>Proximamente se podras generar tu QR o PPF para obtener tu cartilla de Vacunación</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

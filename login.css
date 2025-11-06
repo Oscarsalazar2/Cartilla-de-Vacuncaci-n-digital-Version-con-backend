@@ -1,0 +1,199 @@
+/* Fondo solo del login */
+.login-page{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:linear-gradient(135deg, var(--azul), var(--verde));
+}
+
+/* Tarjeta */
+.login-page .container{
+  background:var(--bg); color:var(--texto);
+  border:1px solid var(--borde);
+  border-radius:30px;
+  box-shadow:0 12px 38px rgba(15,23,42,.12);
+  position:relative; overflow:hidden;
+  width:768px; max-width:100%; min-height:480px;
+}
+
+/* Tipografía y links */
+.login-page .container p{font-size:14px;line-height:20px;letter-spacing:.3px;margin:20px 0;color: #fff/*var(--muted)*/}
+.login-page .container span{font-size:12px;color:var(--muted)}
+.login-page .container a{color:var(--azul);font-size:13px;text-decoration:none;margin:15px 0 10px}
+.login-page .container a:hover{text-decoration:underline}
+
+/* Botones */
+.login-page .container button{
+  background:var(--verde); color:#fff;
+  padding:10px 45px; border:1px solid transparent; border-radius:10px;
+  font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  margin-top:10px; cursor:pointer; transition:filter .18s ease, transform .08s ease;
+}
+.login-page .container button:hover{filter:brightness(.95)}
+.login-page .container button:active{transform:translateY(1px)}
+.login-page .container button.hidden{
+  background:transparent; color:var(--azul);
+  border-color:color-mix(in oklab, var(--azul) 55%, var(--borde));
+}
+.login-page .container button.btn-rojo--blanco{color:#fff;font-size:16px;font-weight:700}
+
+/* Formularios */
+.login-page .container form {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem 40px;
+  height: 100%;
+  text-align: center;
+  overflow-y: auto;              /* 👈 permite scroll interno */
+  scrollbar-width: thin;         /* para navegadores modernos */
+  scrollbar-color: var(--azul) #f1f5f9;
+}
+
+/* Estilo bonito del scroll (opcional) */
+.login-page .container form::-webkit-scrollbar {
+  width: 8px;
+}
+.login-page .container form::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--azul) 60%, #ddd);
+  border-radius: 10px;
+}
+.login-page .container form::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+/* Que el contenido no se pegue al borde inferior */
+.login-page .container .form-container {
+  padding-bottom: 1rem;
+}
+
+/* Oculta visualmente el scroll del formulario pero mantiene el desplazamiento */
+.login-page .container form {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* Internet Explorer y Edge antiguos */
+}
+.login-page .container form::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari y Edge nuevos */
+}
+
+.login-page .container input{
+  background:#fff; color:var(--texto);
+  border:1px solid var(--borde);
+  margin:8px 0; padding:10px 15px; font-size:14px; border-radius:10px; width:100%;
+  outline:none; transition:border-color .15s, box-shadow .15s;
+}
+.login-page .container input::placeholder{ color: #9aa4b2; }
+.login-page .container input:focus{
+  border-color:color-mix(in oklab, var(--azul) 55%, var(--borde));
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--azul) 22%, transparent);
+}
+
+/* Social o redes */
+.login-page .social-icons{margin:10px 0; display:flex; gap:.5rem}
+.login-page .social-icons a{
+  border:1px solid var(--borde); color:var(--texto);
+  border-radius:12px; display:inline-flex; justify-content:center; align-items:center;
+  width:40px; height:40px; transition:background .15s ease;
+}
+.login-page .social-icons a:hover{ background:#f8fafc }
+
+/* Posicionamiento / animaciones */
+.login-page .form-container{ position:absolute; top:0; height:100%; transition: all .6s ease-in-out; }
+.login-page .sign-in{ left:0; width:50%; z-index:2; }
+.login-page .container.active .sign-in{ transform: translateX(0); }
+
+.login-page .sign-up{ left:0; width:50%; opacity:0; z-index:1; }
+.login-page .container.active .sign-up{
+  transform: translateX(100%); opacity:1; z-index:5; animation: login-move .6s;
+}
+@keyframes login-move{
+  0%,49.99%{opacity:0;z-index:1}
+  50%,100%{opacity:1;z-index:5}
+}
+
+/* Panel deslizante */
+.login-page .toggle-container{
+  position:absolute; top:0; left:50%; width:50%; height:100%; overflow:hidden;
+  transition: all .6s ease-in-out; border-radius:150px 0 0 100px; z-index:1000;
+}
+.login-page .container.active .toggle-container{ transform: translateX(-100%); border-radius:0 150px 100px 0; }
+
+.login-page .toggle{
+  background:linear-gradient(120deg, var(--azul), var(--verde));
+  color:#fff; position:relative; left:-100%; height:100%; width:200%;
+  transform:translateX(0); transition:all .6s ease-in-out;
+}
+.login-page .container.active .toggle{ transform:translateX(50%) }
+
+.login-page .toggle-panel{
+  position:absolute; width:50%; height:100%;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  padding:0 30px; text-align:center; top:0; transform:translateX(0); transition:all .6s ease-in-out;
+}
+.login-page .toggle-left{ transform:translateX(-200%) }
+.login-page .container.active .toggle-left{ transform:translateX(0) }
+.login-page .toggle-right{ right:0; transform:translateX(0) }
+.login-page .container.active .toggle-right{ transform:translateX(200%) }
+
+/* Responsiva */
+@media (max-width: 767px){
+  .login-page .container{ min-height:640px }
+  .login-page .sign-in, .login-page .sign-up{ width:100% }
+  .login-page .toggle-container{ display:none }
+}
+
+/*Modal*/
+.login-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,.45);
+  z-index:2000;
+}
+.login-modal.open{display:flex;}
+
+.login-modal__backdrop{
+  position:absolute;
+  inset:0;
+}
+
+.login-modal__content{
+  position:relative;
+  background:var(--bg);
+  border-radius:18px;
+  padding:1.5rem 1.75rem 1.25rem;
+  max-width:360px;
+  width:90%;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(15,23,42,.40);
+  border:1px solid var(--borde);
+}
+
+.login-modal__icon{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  margin:0 auto .4rem;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--verde),var(--azul));
+  color:#fff;
+}
+
+.login-modal__content h3{
+  margin-top:.25rem;
+  margin-bottom:.5rem;
+  color:var(--verde);
+}
+
+.login-modal__content p{
+  font-size:.9rem;
+  color:var(--texto);
+}
+
+.login-modal__content .btn-rojo--blanco{
+  margin-top:.8rem;
+  width:100%;
+}
