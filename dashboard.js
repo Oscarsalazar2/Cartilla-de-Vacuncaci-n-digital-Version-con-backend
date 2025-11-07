@@ -1,9 +1,4 @@
 // =======================
-//  ROL DEL USUARIO (TEMPORAL PARA PRUEBAS)
-// =======================
-const userRole = localStorage.getItem("userRole") || "medico"; // cambia a "medico" o "ciudadano" para probar
-
-// =======================
 //  AVATAR GLOBAL
 // =======================
 
@@ -65,8 +60,8 @@ const titulos = {
   usuarios: "Usuarios del sistema",
   citas: "Citas de vacunación",
   ajustes: "Ajustes del sistema",
-  qr: "QR",
   perfil: "Mi perfil",
+  qr: "QR",
   admin: "Administrar usuarios",
 };
 
@@ -153,7 +148,7 @@ filasVacuna.forEach((fila) => {
         <td>${d.fecha}</td>
         <td>${d.marca}</td>
         <td>${d.lote}</td>
-        <td>—</td>
+        <td>-</td>
       `;
       modalTablaBody.appendChild(tr);
     });
@@ -163,6 +158,7 @@ filasVacuna.forEach((fila) => {
   });
 });
 
+// Cerrar modal
 function cerrarModalVacuna() {
   modalVacuna.classList.remove("open");
 }
@@ -171,10 +167,10 @@ modalCerrar?.addEventListener("click", cerrarModalVacuna);
 modalBackdrop?.addEventListener("click", cerrarModalVacuna);
 
 // =======================
-//  ADMIN USUARIOS (DEMO) – PENDIENTES
+//  ADMIN USUARIOS (DEMO)
 // =======================
 
-// Activar usuario (cambia badge)
+// Activar usuario (cambia badge) — sección "Administrar usuarios"
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-activar-usuario]");
   if (!btn) return;
@@ -226,55 +222,33 @@ filtroBtns.forEach((btn) => {
 // =======================
 const cartillasUsuarios = {
   "juan@example.com": [
-    {
-      vacuna: "BCG",
-      fecha: "2024-01-15",
-      dosis: "Única",
-      estado: "Aplicada",
-      lote: "BCG-001",
-      obs: "Sin reacciones",
-    },
+    { vacuna: "BCG", fecha: "15/01/2024", dosis: "Única", estado: "Aplicada" },
     {
       vacuna: "Hepatitis B",
-      fecha: "2024-02-20",
+      fecha: "20/02/2024",
       dosis: "1 / 3",
       estado: "Aplicada",
-      lote: "HEP-010",
-      obs: "",
     },
     {
       vacuna: "Pentavalente",
-      fecha: "2024-03-10",
+      fecha: "10/03/2024",
       dosis: "2 / 4",
       estado: "Aplicada",
-      lote: "PEN-200",
-      obs: "",
     },
-    {
-      vacuna: "Influenza",
-      fecha: "2024-11-10",
-      dosis: "1 / 1",
-      estado: "Pendiente",
-      lote: "",
-      obs: "",
-    },
+    { vacuna: "Influenza", fecha: "—", dosis: "0 / 1", estado: "Pendiente" },
   ],
   "ana.medico@example.com": [
     {
       vacuna: "COVID-19",
-      fecha: "2024-02-05",
+      fecha: "05/02/2024",
       dosis: "3 / 3",
       estado: "Completa",
-      lote: "COV-333",
-      obs: "Esquema completo",
     },
     {
       vacuna: "Influenza",
-      fecha: "2024-11-12",
+      fecha: "12/11/2024",
       dosis: "1 / 1",
       estado: "Aplicada",
-      lote: "INF-555",
-      obs: "",
     },
   ],
 };
@@ -287,73 +261,6 @@ const cartillaTablaBody = document.getElementById("cartillaTablaBody");
 const btnDescargarCartilla = document.getElementById("btnDescargarCartilla");
 
 let emailCartillaActual = null;
-
-// Función para renderizar tabla de cartilla de un usuario
-function renderCartillaTabla(correo) {
-  if (!cartillaTablaBody) return;
-  cartillaTablaBody.innerHTML = "";
-
-  const cartilla = cartillasUsuarios[correo] || [];
-
-  if (cartilla.length === 0) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="4">No hay vacunas registradas todavía.</td>`;
-    cartillaTablaBody.appendChild(tr);
-    return;
-  }
-
-  cartilla.forEach((item) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${item.vacuna}</td>
-      <td>${item.fecha}</td>
-      <td>${item.dosis}</td>
-      <td>${item.estado}</td>
-    `;
-    cartillaTablaBody.appendChild(tr);
-  });
-}
-
-// Abrir modal de cartilla al hacer click en el icono
-tablaUsuarios?.addEventListener("click", (e) => {
-  const btn = e.target.closest(".ver-cartilla-usuario");
-  if (!btn) return;
-
-  const fila = btn.closest("tr");
-  if (!fila) return;
-
-  const nombre = fila.dataset.userNombre || fila.cells[0].textContent.trim();
-  const correo = fila.dataset.userEmail || fila.cells[3].textContent.trim();
-
-  emailCartillaActual = correo;
-
-  cartillaNombreUsuario.textContent = nombre;
-  cartillaEmailUsuario.textContent = correo;
-
-  renderCartillaTabla(correo);
-
-  modalCartillaUsuario?.classList.add("open");
-});
-
-// Cerrar modal cartilla
-document.querySelectorAll("[data-close-pac-modal]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    modalCartillaUsuario?.classList.remove("open");
-  });
-});
-
-document
-  .querySelectorAll("#modalCartillaUsuario .pac-modal-backdrop")
-  .forEach((bk) => {
-    bk.addEventListener("click", () => {
-      modalCartillaUsuario?.classList.remove("open");
-    });
-  });
-
-// Descargar cartilla = abrir la ventana de impresión (usuario puede Guardar como PDF)
-btnDescargarCartilla?.addEventListener("click", () => {
-  window.print();
-});
 
 // =======================
 //  PERFIL: DATOS BÁSICOS
@@ -370,7 +277,7 @@ const storedEmail = localStorage.getItem("userEmail") || "correo@example.com";
 if (perfilNombreEl) perfilNombreEl.textContent = storedName;
 if (perfilCorreoEl) perfilCorreoEl.textContent = storedEmail;
 
-// Iniciales del avatar de perfil
+// Iniciales del avatar de perfil (usa la misma getInitials)
 if (perfilAvatarInicialesEl) {
   perfilAvatarInicialesEl.textContent = getInitials(storedName);
 }
@@ -437,12 +344,14 @@ const autoFields = [
   "perfilEntreCallesInput",
 ];
 
+// Cargar valores guardados al entrar
 autoFields.forEach((id) => {
   const el = document.getElementById(id);
   if (!el) return;
   const saved = localStorage.getItem(id);
   if (saved) el.value = saved;
 
+  // Guardar automáticamente al cambiar
   el.addEventListener("change", () => {
     localStorage.setItem(id, el.value);
     console.log("Guardado automático de", id);
@@ -490,11 +399,58 @@ btnPassGuardar?.addEventListener("click", () => {
 // =======================
 //  REGISTRAR VACUNA (MODAL)
 // =======================
+
+// Botones "Agregar vacuna" en tabla
 const btnsAgregarVacuna = document.querySelectorAll(".agregar-vacuna-usuario");
+// Botón "Registrar vacuna" dentro del modal de cartilla
 const btnRegistrarDesdeCartilla = document.getElementById(
   "btnRegistrarDesdeCartilla"
 );
 
+// =======================
+//  VISIBILIDAD Y PERMISOS POR ROL
+// =======================
+const userRole = localStorage.getItem("userRole") || "admin"; // 🔧 cámbialo a "admin"/"medico"/"ciudadano" para probar
+
+// Botones de acciones en la tabla
+const btnsEditarUsuario = document.querySelectorAll(".editar-usuario");
+const btnsEliminarUsuario = document.querySelectorAll(".eliminar-usuario");
+
+// Botones del menú lateral
+const btnAdminMenu = document.querySelector('.rail-item[data-section="admin"]');
+const btnUsuariosMenu = document.querySelector(
+  '.rail-item[data-section="usuarios"]'
+);
+
+if (userRole === "admin") {
+  // Admin: todo
+  btnsEditarUsuario.forEach((b) => (b.style.display = "inline-flex"));
+  btnsEliminarUsuario.forEach((b) => (b.style.display = "inline-flex"));
+  btnsAgregarVacuna.forEach((b) => (b.style.display = "inline-flex"));
+
+  if (btnAdminMenu) btnAdminMenu.style.display = "inline-flex";
+  if (btnUsuariosMenu) btnUsuariosMenu.style.display = "inline-flex";
+} else if (userRole === "medico") {
+  // Médico: puede ver usuarios y vacunas, pero no admin ni borrar usuarios
+  btnsEditarUsuario.forEach((b) => (b.style.display = "inline-flex"));
+  btnsEliminarUsuario.forEach((b) => (b.style.display = "none"));
+  btnsAgregarVacuna.forEach((b) => (b.style.display = "inline-flex"));
+
+  if (btnAdminMenu) btnAdminMenu.style.display = "none";
+  if (btnUsuariosMenu) btnUsuariosMenu.style.display = "inline-flex";
+} else {
+  // Ciudadano
+  btnsEditarUsuario.forEach((b) => (b.style.display = "none"));
+  btnsEliminarUsuario.forEach((b) => (b.style.display = "none"));
+  btnsAgregarVacuna.forEach((b) => (b.style.display = "none"));
+
+  if (btnAdminMenu) btnAdminMenu.style.display = "none";
+  if (btnUsuariosMenu) btnUsuariosMenu.style.display = "none";
+}
+
+// =======================
+//  MODAL REGISTRAR VACUNA
+// =======================
 const modalRegistrarVacuna = document.getElementById("modalRegistrarVacuna");
 const rvPaciente = document.getElementById("rvPaciente");
 const rvVacuna = document.getElementById("rvVacuna");
@@ -558,8 +514,10 @@ formRegistrarVacuna?.addEventListener("submit", (e) => {
     return;
   }
 
+  // De momento, usamos el correo de la cartilla abierta:
   const correo = emailCartillaActual || "";
 
+  // DEMO: guardamos en cartillasUsuarios (luego será BD)
   if (correo) {
     if (!cartillasUsuarios[correo]) cartillasUsuarios[correo] = [];
     cartillasUsuarios[correo].push({
@@ -571,8 +529,19 @@ formRegistrarVacuna?.addEventListener("submit", (e) => {
       obs,
     });
 
+    // Si la cartilla de este usuario está abierta, recargamos la tabla
     if (modalCartillaUsuario?.classList.contains("open")) {
-      renderCartillaTabla(correo);
+      cartillaTablaBody.innerHTML = "";
+      cartillasUsuarios[correo].forEach((item) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.vacuna}</td>
+          <td>${item.fecha}</td>
+          <td>${item.dosis}</td>
+          <td>${item.estado}</td>
+        `;
+        cartillaTablaBody.appendChild(tr);
+      });
     }
   }
 
@@ -581,39 +550,90 @@ formRegistrarVacuna?.addEventListener("submit", (e) => {
 });
 
 // =======================
-//  VISIBILIDAD DE BOTONES SEGÚN ROL
+//  VER CARTILLA POR USUARIO
 // =======================
-const btnsEditarUsuario = document.querySelectorAll(".editar-usuario");
-const btnsEliminarUsuario = document.querySelectorAll(".eliminar-usuario");
+tablaUsuarios?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".ver-cartilla-usuario");
+  if (!btn) return;
 
-if (userRole === "admin") {
-  btnsEditarUsuario.forEach((b) => (b.style.display = "inline-flex"));
-  btnsEliminarUsuario.forEach((b) => (b.style.display = "inline-flex"));
-  btnsAgregarVacuna.forEach((b) => (b.style.display = "inline-flex"));
-} else if (userRole === "medico") {
-  btnsEditarUsuario.forEach((b) => (b.style.display = "inline-flex"));
-  btnsEliminarUsuario.forEach((b) => (b.style.display = "none"));
-  btnsAgregarVacuna.forEach((b) => (b.style.display = "inline-flex"));
-} else {
-  // ciudadano
-  btnsEditarUsuario.forEach((b) => (b.style.display = "none"));
-  btnsEliminarUsuario.forEach((b) => (b.style.display = "none"));
-  btnsAgregarVacuna.forEach((b) => (b.style.display = "none"));
-}
+  const fila = btn.closest("tr");
+  if (!fila) return;
+
+  const nombre = fila.dataset.userNombre || fila.cells[0].textContent.trim();
+  const correo = fila.dataset.userEmail || fila.cells[3].textContent.trim();
+
+  emailCartillaActual = correo;
+
+  cartillaNombreUsuario.textContent = nombre;
+  cartillaEmailUsuario.textContent = correo;
+
+  const cartilla = cartillasUsuarios[correo] || [];
+
+  // Limpiar tabla
+  cartillaTablaBody.innerHTML = "";
+
+  if (cartilla.length === 0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4">No hay vacunas registradas todavía.</td>`;
+    cartillaTablaBody.appendChild(tr);
+  } else {
+    cartilla.forEach((item, index) => {
+      const esUltima = index === cartilla.length - 1;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.vacuna}</td>
+        <td ${
+          userRole === "medico" && esUltima ? 'contenteditable="true"' : ""
+        }>${item.fecha}</td>
+        <td>${item.dosis}</td>
+        <td ${
+          userRole === "medico" && esUltima ? 'contenteditable="true"' : ""
+        }>${item.estado}</td>
+      `;
+      cartillaTablaBody.appendChild(tr);
+    });
+  }
+
+  modalCartillaUsuario?.classList.add("open");
+});
+
+// Cerrar modal cartilla
+document.querySelectorAll("[data-close-pac-modal]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    modalCartillaUsuario?.classList.remove("open");
+  });
+});
+
+document
+  .querySelectorAll("#modalCartillaUsuario .pac-modal-backdrop")
+  .forEach((bk) => {
+    bk.addEventListener("click", () => {
+      modalCartillaUsuario?.classList.remove("open");
+    });
+  });
+
+// Descargar cartilla = abrir la ventana de impresión (usuario puede Guardar como PDF)
+btnDescargarCartilla?.addEventListener("click", () => {
+  window.print();
+});
 
 // =======================
 //  CAMBIAR FOTO DE PERFIL
 // =======================
-const btnCambiarFoto = document.getElementById("btnCambiarFoto");
-const inputFoto = document.getElementById("inputFotoPerfil");
-const imgPerfil = document.getElementById("perfilFoto");
-const spanIniciales = document.getElementById("perfilAvatarIniciales");
+document.addEventListener("DOMContentLoaded", () => {
+  const btnCambiarFoto = document.getElementById("btnCambiarFoto");
+  const inputFoto = document.getElementById("inputFotoPerfil");
+  const imgPerfil = document.getElementById("perfilFoto");
+  const spanIniciales = document.getElementById("perfilAvatarIniciales");
 
-if (btnCambiarFoto && inputFoto) {
+  if (!btnCambiarFoto || !inputFoto) return;
+
+  // Al hacer clic en "Cambiar foto" abrimos el selector de archivos
   btnCambiarFoto.addEventListener("click", () => {
     inputFoto.click();
   });
 
+  // Cuando el usuario elige una imagen
   inputFoto.addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -623,25 +643,29 @@ if (btnCambiarFoto && inputFoto) {
     reader.onload = (e) => {
       const dataUrl = e.target.result;
 
+      // Avatar grande del perfil
       if (imgPerfil) {
         imgPerfil.src = dataUrl;
         imgPerfil.style.display = "block";
       }
 
+      // Ocultar iniciales del perfil
       if (spanIniciales) {
         spanIniciales.style.display = "none";
       }
 
+      // Guardar imagen y refrescar avatares globales
       localStorage.setItem("userImage", dataUrl);
-      userImage = dataUrl;
+      userImage = dataUrl; // actualiza la variable global
 
+      // vuelve a pintar los avatares del rail y del header
       setAvatar(railAvatar, 52);
       setAvatar(userAvatarMini, 26);
     };
 
     reader.readAsDataURL(file);
   });
-}
+});
 
 // ===============================
 // MODAL EDICIÓN AVANZADA (Admin / Médico)
@@ -674,60 +698,37 @@ tablaUsuarios?.addEventListener("click", (e) => {
   if (!filaUsuarioActual) return;
 
   // Rellenar datos de usuario
-  const nombre =
-    filaUsuarioActual.dataset.userNombre ||
+  edUserNombre.value =
+    filaUsuarioActual.getAttribute("data-user-nombre") ||
     filaUsuarioActual.cells[0].textContent.trim();
-  const correo =
-    filaUsuarioActual.dataset.userEmail ||
+  edUserCorreo.value =
+    filaUsuarioActual.getAttribute("data-user-email") ||
     filaUsuarioActual.cells[3].textContent.trim();
-  const curp =
-    filaUsuarioActual.dataset.userCurp ||
+  edUserCurp.value =
+    filaUsuarioActual.getAttribute("data-user-curp") ||
     filaUsuarioActual.cells[2].textContent.trim();
-  const tipo = filaUsuarioActual.dataset.tipo || "ciudadano";
+  edUserTipo.value = filaUsuarioActual.getAttribute("data-tipo") || "ciudadano";
 
-  if (formEditarUsuario) {
-    edUserNombre.value = nombre;
-    edUserCorreo.value = correo;
-    edUserCurp.value = curp;
-    edUserTipo.value = tipo;
-
-    const badge = filaUsuarioActual.querySelector(".badge");
-    edUserEstado.value =
-      badge && badge.classList.contains("badge-activo")
-        ? "activo"
-        : "suspendido";
-  }
+  const badge = filaUsuarioActual.querySelector(".badge");
+  edUserEstado.value =
+    badge && badge.classList.contains("badge-activo") ? "activo" : "suspendido";
 
   // MOSTRAR SECCIONES SEGÚN ROL
   if (userRole === "admin") {
-    formEditarUsuario.style.display = "block";
-    formEditarDosis.style.display = "block";
+    formEditarUsuario.style.display = "block"; // Datos del usuario
+    formEditarDosis.style.display = "block"; // Última dosis
   } else if (userRole === "medico") {
-    formEditarUsuario.style.display = "none";
-    formEditarDosis.style.display = "block";
+    formEditarUsuario.style.display = "none"; // Médico NO edita datos generales
+    formEditarDosis.style.display = "block"; // Solo dosis
   } else {
     formEditarUsuario.style.display = "none";
     formEditarDosis.style.display = "none";
   }
 
-  // Rellenar última dosis (si existe) para este usuario
-  if (formEditarDosis && correo && cartillasUsuarios[correo]?.length) {
-    const cartilla = cartillasUsuarios[correo];
-    const ultima = cartilla[cartilla.length - 1];
-
-    edFecha.value = ultima.fecha || "";
-    edLote.value = ultima.lote || "";
-    edObs.value = ultima.obs || "";
-  } else {
-    edFecha.value = "";
-    edLote.value = "";
-    edObs.value = "";
-  }
-
   modalEdicionAvanzada.classList.add("open");
 });
 
-// Cerrar modal
+// Cerrar modal edición avanzada
 document.querySelectorAll("[data-close-edicion-avanzada]").forEach((btn) =>
   btn.addEventListener("click", () => {
     modalEdicionAvanzada.classList.remove("open");
@@ -735,36 +736,26 @@ document.querySelectorAll("[data-close-edicion-avanzada]").forEach((btn) =>
   })
 );
 
-// Guardar cambios (demo sin BD real)
+// Guardar cambios (demo sin BD)
 btnGuardarEdicion?.addEventListener("click", () => {
   if (!filaUsuarioActual) return;
 
-  const correoActual =
-    filaUsuarioActual.dataset.userEmail ||
-    filaUsuarioActual.cells[3].textContent.trim();
+  if (userRole === "admin") {
+    // Actualizar datos usuario
+    filaUsuarioActual.setAttribute("data-user-nombre", edUserNombre.value);
+    filaUsuarioActual.setAttribute("data-user-email", edUserCorreo.value);
+    filaUsuarioActual.setAttribute("data-user-curp", edUserCurp.value);
+    filaUsuarioActual.setAttribute("data-tipo", edUserTipo.value);
 
-  // === ADMIN: actualizar datos del usuario ===
-  if (userRole === "admin" && formEditarUsuario) {
-    const nuevoNombre = edUserNombre.value.trim();
-    const nuevoCorreo = edUserCorreo.value.trim();
-    const nuevoCurp = edUserCurp.value.trim();
-    const nuevoTipo = edUserTipo.value;
-    const nuevoEstado = edUserEstado.value;
-
-    filaUsuarioActual.setAttribute("data-user-nombre", nuevoNombre);
-    filaUsuarioActual.setAttribute("data-user-email", nuevoCorreo);
-    filaUsuarioActual.setAttribute("data-user-curp", nuevoCurp);
-    filaUsuarioActual.setAttribute("data-tipo", nuevoTipo);
-
-    filaUsuarioActual.cells[0].textContent = nuevoNombre;
+    filaUsuarioActual.cells[0].textContent = edUserNombre.value;
     filaUsuarioActual.cells[1].textContent =
-      nuevoTipo === "medico" ? "Personal médico" : "Ciudadano";
-    filaUsuarioActual.cells[2].textContent = nuevoCurp;
-    filaUsuarioActual.cells[3].textContent = nuevoCorreo;
+      edUserTipo.value === "medico" ? "Personal médico" : "Ciudadano";
+    filaUsuarioActual.cells[2].textContent = edUserCurp.value;
+    filaUsuarioActual.cells[3].textContent = edUserCorreo.value;
 
     const badge = filaUsuarioActual.querySelector(".badge");
     if (badge) {
-      if (nuevoEstado === "activo") {
+      if (edUserEstado.value === "activo") {
         badge.textContent = "Activo";
         badge.classList.add("badge-activo");
         badge.classList.remove("badge-pendiente");
@@ -776,23 +767,11 @@ btnGuardarEdicion?.addEventListener("click", () => {
     }
   }
 
-  // === ADMIN / MÉDICO: actualizar última dosis ===
-  if ((userRole === "admin" || userRole === "medico") && correoActual) {
-    const cartilla = cartillasUsuarios[correoActual];
-    if (cartilla && cartilla.length) {
-      const ultima = cartilla[cartilla.length - 1];
-      ultima.fecha = edFecha.value || ultima.fecha;
-      ultima.lote = edLote.value || ultima.lote;
-      ultima.obs = edObs.value || ultima.obs;
-
-      // Si la cartilla de este usuario está abierta, refrescamos la tabla
-      if (
-        modalCartillaUsuario?.classList.contains("open") &&
-        emailCartillaActual === correoActual
-      ) {
-        renderCartillaTabla(correoActual);
-      }
-    }
+  if (userRole === "admin" || userRole === "medico") {
+    // Aquí luego vas a actualizar en BD la última dosis aplicada
+    console.log("Nueva fecha:", edFecha.value);
+    console.log("Lote:", edLote.value);
+    console.log("Obs:", edObs.value);
   }
 
   modalEdicionAvanzada.classList.remove("open");
@@ -800,11 +779,17 @@ btnGuardarEdicion?.addEventListener("click", () => {
 });
 
 // =======================
-//  ELIMINAR USUARIO (SOLO FRONT)
+//  ELIMINAR USUARIO (solo front)
 // =======================
 tablaUsuarios?.addEventListener("click", (e) => {
   const btnEliminar = e.target.closest(".eliminar-usuario");
   if (!btnEliminar) return;
+
+  // Si no es admin, no hace nada (extra seguridad)
+  if (userRole !== "admin") {
+    alert("Solo el administrador puede eliminar usuarios (demo).");
+    return;
+  }
 
   const fila = btnEliminar.closest("tr");
   if (!fila) return;
@@ -812,9 +797,7 @@ tablaUsuarios?.addEventListener("click", (e) => {
   const nombre =
     fila.getAttribute("data-user-nombre") || fila.cells[0].textContent.trim();
 
-  if (
-    confirm(`¿Seguro que quieres eliminar a ${nombre}? (demo, solo frontend)`)
-  ) {
+  if (confirm(`¿Seguro que quieres eliminar a ${nombre}? (demo, solo front)`)) {
     fila.remove();
   }
 });
