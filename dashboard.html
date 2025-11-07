@@ -204,6 +204,96 @@
         </div>
       </div>
 
+            <!-- MODAL: Editar usuario (demo) -->
+      <!-- MODAL: Edición avanzada (usuario + última dosis) -->
+<div class="pac-modal" id="modalEdicionAvanzada">
+  <div class="pac-modal-backdrop" data-close-edicion-avanzada></div>
+
+  <div class="pac-modal-card">
+    <div class="pac-modal-head">
+      <h3>Edición avanzada</h3>
+      <button
+        type="button"
+        class="pac-modal-close"
+        data-close-edicion-avanzada
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="pac-modal-body">
+      <!-- 👤 SECCIÓN 1: DATOS DEL USUARIO -->
+      <form id="formEditarUsuario" class="seccion-admin">
+        <h4>Datos del usuario</h4>
+        <div class="rv-grid">
+          <div class="rv-field rv-field-full">
+            <span>Nombre completo</span>
+            <input type="text" id="edUserNombre" required />
+          </div>
+
+          <div class="rv-field rv-field-full">
+            <span>Correo electrónico</span>
+            <input type="email" id="edUserCorreo" required />
+          </div>
+
+          <div class="rv-field rv-field-full">
+            <span>CURP</span>
+            <input type="text" id="edUserCurp" required />
+          </div>
+
+          <div class="rv-field">
+            <span>Tipo de usuario</span>
+            <select id="edUserTipo">
+              <option value="ciudadano">Ciudadano</option>
+              <option value="medico">Personal médico</option>
+            </select>
+          </div>
+
+          <div class="rv-field">
+            <span>Estado</span>
+            <select id="edUserEstado">
+              <option value="activo">Activo</option>
+              <option value="suspendido">Suspendido</option>
+            </select>
+          </div>
+        </div>
+      </form>
+
+      <hr />
+
+      <!-- 💉 SECCIÓN 2: EDITAR ÚLTIMA DOSIS -->
+      <form id="formEditarDosis" class="seccion-vacuna">
+        <h4>Última dosis aplicada</h4>
+        <div class="rv-grid">
+          <div class="rv-field">
+            <span>Fecha de aplicación</span>
+            <input type="date" id="edFecha" required />
+          </div>
+          <div class="rv-field">
+            <span>Lote</span>
+            <input type="text" id="edLote" required />
+          </div>
+          <div class="rv-field rv-field-full">
+            <span>Observaciones</span>
+            <textarea id="edObs" rows="2"></textarea>
+          </div>
+        </div>
+      </form>
+
+      <!-- 🎯 ACCIONES COMUNES -->
+      <div class="rv-actions">
+        <button type="button" class="btn-ghost" data-close-edicion-avanzada>
+          Cancelar
+        </button>
+        <button type="button" id="btnGuardarEdicion" class="btn-azul">
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
       <!-- Área principal -->
       <div class="main">
         <!-- Barra superior -->
@@ -398,6 +488,7 @@
                       <th>Fecha</th>
                       <th>Marca</th>
                       <th>Lote</th>
+                      <th>Acción</th>
                     </tr>
                   </thead>
                   <tbody id="modalVacunaTablaBody">
@@ -419,6 +510,7 @@
             <div class="dash-card">
               <div class="usuarios-header">
                 <b>Listado de usuarios</b>
+
                 <div class="usuarios-filtros">
                   <button
                     class="usuarios-pill usuarios-pill-activo"
@@ -442,6 +534,7 @@
                     Personal médico
                   </button>
                 </div>
+
                 <div class="usuarios-busqueda">
                   <input
                     type="text"
@@ -458,12 +551,11 @@
                     <th>Tipo</th>
                     <th>CURP</th>
                     <th>Correo</th>
-                    <th>Estado</th>
-                    <th style="width: 190px">Acciones</th>
+                    <th style="width: 220px">Estado</th>
                   </tr>
                 </thead>
                 <tbody id="tablaUsuariosBody">
-                  <!-- Ejemplos demo -->
+                  <!-- Ejemplo demo -->
                   <tr
                     data-user-id="1"
                     data-user-nombre="Juan Pérez"
@@ -475,46 +567,42 @@
                     <td>Ciudadano</td>
                     <td>PEPJ800101HDFRRN09</td>
                     <td>juan@example.com</td>
-                    <td>Usuario</td>
-                    <td><span class="badge badge-activo">Activo</span></td>
                     <td>
-                      <div class="usuarios-actions">
-                        <!-- Ver cartilla -->
-                        <button
-                          class="btn-usr-icon ver-cartilla-usuario"
-                          type="button"
-                          title="Ver cartilla"
-                        >
-                          <i class="fa-solid fa-syringe"></i>
-                        </button>
-
-                        <!-- Agregar vacuna (Idea 1) -->
-                        <button
-                          class="btn-usr-icon agregar-vacuna-usuario"
-                          type="button"
-                          title="Registrar nueva vacuna"
-                          data-user-nombre="Juan Pérez"
-                          data-user-email="juan@example.com"
-                          style="display: none"
-                        >
-                          <i class="fa-solid fa-plus"></i>
-                        </button>
-
-                        <!-- Editar / Eliminar como ya tenías -->
-                        <button
-                          class="btn-usr-icon editar-usuario"
-                          type="button"
-                          title="Editar datos"
-                        >
-                          <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button
-                          class="btn-usr-icon eliminar-usuario"
-                          type="button"
-                          title="Eliminar"
-                        >
-                          <i class="fa-solid fa-trash"></i>
-                        </button>
+                      <div class="usuarios-estado-acciones">
+                        <span class="badge badge-activo">Activo</span>
+                        <div class="usuarios-actions">
+                          <button
+                            class="btn-usr-icon ver-cartilla-usuario"
+                            type="button"
+                            title="Ver cartilla"
+                          >
+                            <i class="fa-solid fa-syringe"></i>
+                          </button>
+                          <button
+                            class="btn-usr-icon agregar-vacuna-usuario"
+                            type="button"
+                            title="Registrar vacuna"
+                            data-user-nombre="Juan Pérez"
+                            data-user-email="juan@example.com"
+                            style="display: none"
+                          >
+                            <i class="fa-solid fa-plus"></i>
+                          </button>
+                          <button
+                            class="btn-usr-icon editar-usuario"
+                            type="button"
+                            title="Editar datos"
+                          >
+                            <i class="fa-solid fa-pen"></i>
+                          </button>
+                          <button
+                            class="btn-usr-icon eliminar-usuario"
+                            type="button"
+                            title="Eliminar usuario"
+                          >
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -522,39 +610,40 @@
                   <tr
                     data-user-id="2"
                     data-user-nombre="Dra. Ana López"
-                    data-user-tipo="medico"
                     data-user-email="ana.medico@example.com"
                     data-user-curp="LOLA850202MDFRRS07"
+                    data-tipo="medico"
                   >
                     <td>Dra. Ana López</td>
                     <td>Personal médico</td>
                     <td>LOLA850202MDFRRS07</td>
                     <td>ana.medico@example.com</td>
-                    <td>Personal médico</td>
-                    <td><span class="badge badge-activo">Activo</span></td>
                     <td>
-                      <div class="usuarios-actions">
-                        <button
-                          class="btn-usr-icon ver-cartilla-usuario"
-                          type="button"
-                          title="Ver cartilla"
-                        >
-                          <i class="fa-solid fa-syringe"></i>
-                        </button>
-                        <button
-                          class="btn-usr-icon editar-usuario"
-                          type="button"
-                          title="Editar datos"
-                        >
-                          <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button
-                          class="btn-usr-icon eliminar-usuario"
-                          type="button"
-                          title="Eliminar usuario"
-                        >
-                          <i class="fa-solid fa-trash"></i>
-                        </button>
+                      <div class="usuarios-estado-acciones">
+                        <span class="badge badge-activo">Activo</span>
+                        <div class="usuarios-actions">
+                          <button
+                            class="btn-usr-icon ver-cartilla-usuario"
+                            type="button"
+                            title="Ver cartilla"
+                          >
+                            <i class="fa-solid fa-syringe"></i>
+                          </button>
+                          <button
+                            class="btn-usr-icon editar-usuario"
+                            type="button"
+                            title="Editar datos"
+                          >
+                            <i class="fa-solid fa-pen"></i>
+                          </button>
+                          <button
+                            class="btn-usr-icon eliminar-usuario"
+                            type="button"
+                            title="Eliminar usuario"
+                          >
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>

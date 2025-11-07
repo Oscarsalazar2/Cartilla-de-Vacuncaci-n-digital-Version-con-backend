@@ -461,6 +461,7 @@ th {
   cursor: pointer;
   color: var(--muted);
 }
+
 .usuarios-pill-activo {
   background: color-mix(in oklab, var(--azul) 12%, #eff6ff);
   border-color: color-mix(in oklab, var(--azul) 40%, #bfdbfe);
@@ -474,6 +475,7 @@ th {
   font-size: 0.85rem;
   min-width: 220px;
 }
+
 .usuarios-busqueda input:focus {
   outline: none;
   border-color: var(--azul);
@@ -490,20 +492,43 @@ th {
   gap: 0.25rem;
 }
 
-/* Botones pequeñitos de acción */
+/* === NUEVO BLOQUE: Estado y acciones juntos (badge + botones) === */
+.usuarios-estado-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.usuarios-estado-acciones .badge {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.usuarios-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .btn-usr-icon {
+  background: none;
+  border: 1px solid var(--borde);
+  cursor: pointer;
+  color: var(--texto);
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  border: 1px solid var(--borde);
-  background: #fff;
   display: grid;
   place-items: center;
   font-size: 0.75rem;
-  cursor: pointer;
+  transition: 0.2s;
 }
+
 .btn-usr-icon:hover {
-  background: #f8fafc;
+  background: var(--borde);
+  color: var(--azul);
 }
 
 /* Botón + usuarios */
@@ -518,17 +543,21 @@ th {
   cursor: pointer;
   transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
 }
+
 .usuarios-plus i {
   font-size: 0.9rem;
   color: var(--azul);
 }
+
 .usuarios-plus:hover {
   background: #f1f5f9;
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
 }
+
 .usuarios-plus:active {
   transform: translateY(1px);
 }
+
 
 /* =======================
    MODAL GENÉRICO PACIENTES
@@ -1115,3 +1144,36 @@ th {
     border: none;
   }
 }
+
+/* ========== BLOQUEO DE FILAS DE VACUNAS ========== */
+#cartillaTablaBody tr.bloqueado {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+#cartillaTablaBody tr.bloqueado td {
+  position: relative;
+}
+
+#cartillaTablaBody tr.bloqueado td::after {
+  content: "🔒 Solo lectura";
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+#modalEdicionAvanzada h4 {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--texto);
+}
+
+#modalEdicionAvanzada hr {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid var(--borde);
+}
+
