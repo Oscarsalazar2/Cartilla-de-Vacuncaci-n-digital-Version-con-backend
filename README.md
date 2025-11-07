@@ -124,17 +124,6 @@ El diseño de la interfaz está inspirado en una paleta que representa **salud, 
 
 ---
 
-## 📸 Capturas del proyecto
-
-> Agrega tus imágenes aquí:
-
-```markdown
-![Login principal](screenshots/login.png)
-![Dashboard de usuario](screenshots/dashboard.png)
-![Aviso de privacidad](screenshots/privacidad.png)
-```
-
----
 
 ## 🧠 Objetivos del proyecto
 
