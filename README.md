@@ -1,49 +1,59 @@
+Perfecto 💪 aquí tienes tu README **listo para copiar y pegar** directamente en GitHub o VS Code:
+
+---
+
+````markdown
 # 💉 eCartilla · Cartilla de Vacunación Digital
 
-
 **Instituto Tecnológico de Matamoros**  
-📆 *2025*  
-📍 *Matamoros, Tamaulipas, México*  
+📆 2025  
+📍 Matamoros, Tamaulipas, México  
 
 ---
 
 ## 🏫 Presentación institucional
 
-La **Cartilla de Vacunación Digital (eCartilla)** es un proyecto académico desarrollado como parte de la formación en **Ingeniería en Sistemas Computacionales** del **Instituto Tecnológico de Matamoros**, enfocado en el desarrollo de soluciones tecnológicas para la salud pública.  
+La **Cartilla de Vacunación Digital (eCartilla)** es un proyecto académico desarrollado como parte de la formación en **Ingeniería en Sistemas Computacionales** del **Instituto Tecnológico de Matamoros**.
 
-El propósito principal es **digitalizar el control de vacunas**, permitiendo que usuarios, clínicas y escuelas gestionen registros de vacunación de forma eficiente, moderna y segura.
+Su objetivo principal es **digitalizar el control de vacunas**, permitiendo que usuarios, clínicas y escuelas gestionen sus esquemas de vacunación de forma:
+
+- más **organizada**,  
+- más **segura**, y  
+- acorde a los entornos **tecnológicos modernos**.
 
 ---
 
 ## 🌐 Descripción general
 
-**eCartilla** transforma la cartilla física en una versión **digital y accesible desde cualquier dispositivo**.  
-El sistema permite al usuario:
+**eCartilla** transforma la cartilla física tradicional en una versión **digital**, accesible desde cualquier dispositivo con navegador web.
 
-- Registrar su información personal y vacunas.
-- Consultar su historial.
-- Descargar comprobantes digitales.
-- Visualizar próximas dosis.
+Entre las acciones que el usuario puede realizar se encuentran:
 
-Su interfaz está diseñada con un estilo moderno, intuitivo y en armonía con los colores que representan **salud, confianza y tecnología**:
+- 👤 Registrar y actualizar su **información personal**.  
+- 💉 Registrar, consultar y visualizar su **historial de vacunas**.  
+- 📅 Ver **próximas dosis** según su esquema de vacunación.  
+- 🧾 Descargar un **comprobante digital (cartilla)** en formato imprimible o PDF.  
+- 📊 Visualizar un **resumen del progreso** del esquema de vacunación.  
+
+El diseño de la interfaz está inspirado en una paleta que representa **salud, confianza y tecnología**:
 
 | Color | Uso | Código |
-|--------|------|--------|
-| 💚 Verde menta | Salud y bienestar | `#2ECC71` |
-| 💙 Azul claro | Tecnología y confianza | `#5DADE2` |
-| ⚪ Gris suave | Neutralidad y equilibrio | `#BDC3C7` |
+|-------|------|--------|
+| 💚 Verde | Salud y bienestar | `#2ECC71` |
+| 💙 Azul | Tecnología y confianza | `#5DADE2` |
+| ⚪ Gris | Neutralidad y equilibrio | `#BDC3C7` |
 
 ---
 
 ## 🚀 Funcionalidades principales
 
-- ✅ **Registro e inicio de sesión de usuarios**
-- 💉 **Gestión de vacunas** (registro, edición, consulta y eliminación)
-- 📅 **Próximas dosis y recordatorios**
-- 🧾 **Generación de comprobante digital en PDF**
-- 🔒 **Aviso de privacidad** conforme a la protección de datos personales
-- 🌐 **Diseño responsive** (compatible con dispositivos móviles)
-- 🧠 **Arquitectura modular (HTML, CSS, JS separados)**
+- ✅ **Registro e inicio de sesión de usuarios**  
+- 💉 **Gestión de vacunas** (registro, consulta, edición y eliminación)  
+- 📅 **Próximas dosis y alertas automáticas**  
+- 🧾 **Generación de cartilla imprimible o PDF**  
+- 🔒 **Aviso de privacidad** conforme a la Ley Federal de Protección de Datos Personales  
+- 📱 **Diseño responsive** (compatible con computadoras y móviles)  
+- 🧠 **Arquitectura modular (HTML, CSS, JS separados)**  
 
 ---
 
@@ -52,85 +62,119 @@ Su interfaz está diseñada con un estilo moderno, intuitivo y en armonía con l
 | Área | Tecnología / Herramienta |
 |------|----------------------------|
 | Estructura web | HTML5 |
-| Estilos visuales | CSS3 (Paleta institucional verde/azul/gris) |
-| Interactividad | JavaScript (puro) |
-| Iconografía | FontAwesome 6.5.1 |
+| Estilos visuales | CSS3 |
+| Interactividad | JavaScript (vanilla) |
+| Iconografía | Font Awesome 6.5.1 |
 | Control de versiones | Git y GitHub |
 | Hospedaje web | GitHub Pages / Netlify |
-| Almacenamiento (versión avanzada) | PostgreSQL o SQL Server |
+| Base de datos (futura) | PostgreSQL o SQL Server |
 | Backend (planeado) | Node.js con Fastify o Express |
 | IDE recomendado | Visual Studio Code |
 
 ---
 
 ## 📂 Estructura del proyecto
+
+```text
 📁 Cartilla-de-Vacunacion-Digital
 │
-├── index.html # Página principal del sitio
-├── login.html # Página de inicio de sesión
-├── dashboard.html # Panel principal del usuario
-├── privacidad.html # Aviso de privacidad institucional
+├── index.html             # Página principal
+├── login.html             # Inicio de sesión y registro
+├── dashboard.html         # Panel principal del usuario
+├── privacidad.html        # Aviso de privacidad
 │
-├── style.css # Estilos generales de la página
-├── login.css # Estilos específicos del login
+├── style.css              # Estilos generales
+├── login.css              # Estilos del login
+├── deshboard.css          # Estilos del dashboard
 │
-├── main.js # Lógica general del sitio
-├── login.js # Validaciones y funciones del login
-├── dashboard.js # Funcionalidad del panel de usuario
+├── main.js                # Lógica general
+├── login.js               # Funciones del login
+├── dashboard.js           # Control del panel principal
+├── app.js                 # Resumen y esquema de vacunación
+├── vacunas-esquema.js     # Datos base del esquema nacional
 │
-├── logo.jpg # Logo del proyecto (ITM / eCartilla)
-├── README.md # Documentación del proyecto
-└── /assets # Carpeta opcional para imágenes o PDFs
-
+├── /assets                # Imágenes, íconos, etc.
+│   ├── logo.jpg
+│   └── ...
+│
+└── README.md              # Documentación del proyecto
+````
 
 ---
 
 ## ⚙️ Instalación y ejecución
 
 1. **Clonar el repositorio desde GitHub**
+
    ```bash
    git clone https://github.com/Oscarsalazar2/Cartilla-de-Vacunaci-n-digital.git
-   Entrar al directorio del proyecto
+   ```
 
-cd Cartilla-de-Vacunaci-n-digital
+2. **Entrar al directorio del proyecto**
 
+   ```bash
+   cd Cartilla-de-Vacunaci-n-digital
+   ```
 
-Abrir el proyecto en Visual Studio Code
+3. **Abrir el proyecto en Visual Studio Code**
 
-code .
+   ```bash
+   code .
+   ```
 
+4. **Ejecutar localmente**
 
-Ejecutar en navegador local
+   * Opción 1: abre manualmente `index.html` en tu navegador.
+   * Opción 2: usa **Live Server** de VS Code y abre `http://localhost:5500`.
 
-Opción 1: Abre index.html manualmente.
+---
 
-Opción 2: Usa la extensión Live Server en VS Code y abre en http://localhost:5500.
+## 📸 Capturas del proyecto
 
-📸 Capturas del proyecto
+> Agrega tus imágenes aquí:
 
-(Agrega tus imágenes aquí para mostrar el diseño final de la interfaz)
-
+```markdown
 ![Login principal](screenshots/login.png)
 ![Dashboard de usuario](screenshots/dashboard.png)
 ![Aviso de privacidad](screenshots/privacidad.png)
+```
 
-🧠 Objetivos del proyecto
+---
 
-Modernizar la cartilla de vacunación tradicional, adaptándola a entornos digitales.
+## 🧠 Objetivos del proyecto
 
-Facilitar el control de esquemas de vacunación en escuelas, clínicas y hogares.
+* Modernizar la **cartilla de vacunación tradicional** mediante una plataforma digital.
+* Facilitar el **control de esquemas de vacunación** en escuelas, clínicas y hogares.
+* Promover el uso de **tecnologías web** aplicadas a la salud pública.
+* Garantizar la **seguridad y privacidad** de los datos del usuario.
 
-Garantizar la seguridad y privacidad de los datos del usuario.
+---
 
-Promover la cultura tecnológica en la salud pública.
+## 🔒 Aviso de privacidad
 
-🔒 Aviso de privacidad
+Los datos personales ingresados en la plataforma se tratan conforme a la **Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México)**.
+El sistema garantiza:
 
-Los datos personales ingresados en la plataforma serán tratados conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México).
-El sistema garantiza la confidencialidad, integridad y seguridad de la información del usuario, no compartiendo datos con terceros sin autorización expresa.
+* 🔐 Confidencialidad de la información.
+* 🧱 Integridad y seguridad en el almacenamiento.
+* 🚫 No compartir datos con terceros sin consentimiento.
 
-🧾 Licencia
+---
 
-Este proyecto está bajo la Licencia MIT, que permite su uso, modificación y distribución con atribución al autor original.
-Consulta el texto completo en el archivo LICENSE o en opensource.org/licenses/MIT
-.
+## 🧾 Licencia
+
+Este proyecto se distribuye bajo la **Licencia MIT**, que permite su uso, modificación y distribución con atribución al autor original.
+Consulta más información en:
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+## 👨‍💻 Autor
+
+Desarrollado por **Oscar Salazar**
+Estudiante de **Ingeniería en Sistemas Computacionales**
+**Instituto Tecnológico de Matamoros** – 2025
+
+```
+
+```
