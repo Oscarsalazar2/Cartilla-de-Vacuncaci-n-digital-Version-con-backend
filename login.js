@@ -3,9 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLoginToggle = document.getElementById("login");
   const btnRegisterToggle = document.getElementById("register");
 
-  
-
-  //Cambiar entre Iniciar sesión / Registrarse
+  // Cambiar entre Iniciar sesión / Registrarse
   btnLoginToggle?.addEventListener("click", () => {
     container?.classList.remove("active");
   });
@@ -14,98 +12,183 @@ document.addEventListener("DOMContentLoaded", () => {
     container?.classList.add("active");
   });
 
- //REGISTRO: guarda usuario pendiente y muestra modal
+  // Mostrar panel según hash (#signup)
+  const hash = window.location.hash;
+  if (hash === "#signup") {
+    container?.classList.add("active");
+  } else {
+    container?.classList.remove("active");
+  }
+
+  // ==========================
+  // REGISTRO con fetch + modales
+  // ==========================
   const formRegistro = document.getElementById("formRegistro");
-  const modalRegistro = document.getElementById("modalRegistroPendiente");
+  const modalRegistroPendiente = document.getElementById("modalRegistroPendiente");
   const btnModalAceptar = document.getElementById("btnModalAceptar");
 
-  formRegistro?.addEventListener("submit", (e) => {
-    e.preventDefault();
+  const modalRegistroError = document.getElementById("modalRegistroError");
+  const btnModalErrorAceptar = document.getElementById("btnModalErrorAceptar");
 
-    const nombre = document.getElementById("regNombre").value.trim();
-    const correo = document.getElementById("regCorreo").value.trim();
-    const curp = document.getElementById("regCurp").value.trim();
-    const password = document.getElementById("regPassword").value.trim();
+  formRegistro?.addEventListener("submit", async (e) => {
+    e.preventDefault(); // <- esto evita que el navegador vaya a registrar_usuario.php
 
-    if (!correo || !password) {
-      alert("Por favor, completa al menos correo y contraseña.");
-      return;
+    const formData = new FormData(formRegistro);
+
+    try {
+      const resp = await fetch("php/registrar_usuario.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await resp.json();
+
+      console.log("Respuesta registro:", data);
+
+      if (data.ok) {
+        // Registro exitoso -> mostrar modal de "Registro pendiente"
+        modalRegistroPendiente?.classList.add("open");
+        formRegistro.reset();
+      } else if (data.code === "duplicate") {
+        // Correo/CURP ya existen -> mostrar modal de error
+        modalRegistroError?.classList.add("open");
+      } else {
+        alert(data.message || "Ocurrió un error al registrar.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión con el servidor.");
     }
-
-    const nuevoUsuario = {
-      id: Date.now(),
-      nombre,
-      correo,
-      curp,
-      password,
-      validado: false, // luego la activo como admin
-    };
-
-    const pendientes = JSON.parse(
-      localStorage.getItem("usuariosPendientes") || "[]"
-    );
-    pendientes.push(nuevoUsuario);
-    localStorage.setItem("usuariosPendientes", JSON.stringify(pendientes));
-
-    // Mostrar modal
-    modalRegistro?.classList.add("open");
   });
 
+  // Botón Aceptar del modal de registro pendiente
   btnModalAceptar?.addEventListener("click", () => {
-    modalRegistro?.classList.remove("open");
-    // Volver iniciar sesión
+    modalRegistroPendiente?.classList.remove("open");
+    // Volver al panel de login
     container?.classList.remove("active");
   });
 
-  // Login simple
-  const loginForm = document.getElementById("loginForm");
+  // Botón Aceptar del modal de error
+  btnModalErrorAceptar?.addEventListener("click", () => {
+    modalRegistroError?.classList.remove("open");
+  });
 
-  loginForm?.addEventListener("submit", (e) => {
+  // Cerrar modales haciendo clic en el fondo
+  document
+    .querySelectorAll(
+      "#modalRegistroPendiente .login-modal__backdrop, #modalRegistroError .login-modal__backdrop"
+    )
+    .forEach((bk) => {
+      bk.addEventListener("click", () => {
+        modalRegistroPendiente?.classList.remove("open");
+        modalRegistroError?.classList.remove("open");
+      });
+    });
+
+      // ==========================
+  // LOGIN con fetch + modal
+  // ==========================
+  const loginForm = document.getElementById("loginForm");
+  const modalLoginError = document.getElementById("modalLoginError");
+  const btnLoginErrorAceptar = document.getElementById("btnLoginErrorAceptar");
+  const loginErrorMsg = document.getElementById("loginErrorMsg");
+
+  loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const correo = document.getElementById("loginCorreo").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
+    const formData = new FormData(loginForm);
 
-    const activos = JSON.parse(
-      localStorage.getItem("usuariosActivos") || "[]"
-    );
-    const pendientes = JSON.parse(
-      localStorage.getItem("usuariosPendientes") || "[]"
-    );
+    try {
+      const resp = await fetch("php/login_usuario.php", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await resp.json();
 
-    const usuarioActivo = activos.find(
-      (u) => u.correo === correo && u.password === password
-    );
-    const usuarioPendiente = pendientes.find(
-      (u) => u.correo === correo && u.password === password
-    );
+      console.log("Respuesta login:", data);
 
-    if (usuarioActivo) {
-      localStorage.setItem(
-        "userName",
-        usuarioActivo.nombre || "Usuario"
-      );
-      window.location.href = "dashboard.html";
-    } else if (usuarioPendiente) {
-      alert(
-        "Tu registro está pendiente de activación.\n" +
-          "Acude al Centro de Salud para que validen tu cuenta."
-      );
-    } else {
-      // Modo demo: si no existe, entra como invitado
-      /*alert(
-        "Credenciales incorrectas. Entrarás como Usuario invitado (modo demo)."
-      );*/
-      localStorage.setItem("userName", "Equipo 1");
-      window.location.href = "dashboard.html";
+      if (data.ok) {
+        // Redirigir al dashboard
+        window.location.href = "dashboard.php";
+      } else {
+        // Mensaje según el tipo de error
+        let msg = "Error al iniciar sesión.";
+        if (data.code === "bad_password") msg = "Contraseña incorrecta.";
+        if (data.code === "not_found") msg = "Usuario no encontrado.";
+        if (data.code === "pending") msg = "Tu cuenta aún no ha sido activada.";
+        if (data.code === "validation") msg = "Por favor llena todos los campos.";
+
+        loginErrorMsg.textContent = msg;
+        modalLoginError?.classList.add("open");
+      }
+    } catch (err) {
+      console.error(err);
+      loginErrorMsg.textContent = "Error de conexión con el servidor.";
+      modalLoginError?.classList.add("open");
     }
   });
-  
-  const hash = window.location.hash;
-  if (hash === "#signup") {
-    container?.classList.add("active"); // muestra el panel de registro
-  } else {
-    container?.classList.remove("active"); // por defecto: login
+
+  btnLoginErrorAceptar?.addEventListener("click", () => {
+    modalLoginError?.classList.remove("open");
+  });
+
+  document
+    .querySelectorAll("#modalLoginError .login-modal__backdrop")
+    .forEach((bk) => {
+      bk.addEventListener("click", () => {
+        modalLoginError?.classList.remove("open");
+      });
+    });
+
+
+
+    function getBirthdateFromCurp(curp) {
+  if (!curp) return null;
+
+  curp = curp.toUpperCase().trim();
+
+  // Validación básica de formato
+  const regexCurp = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
+  if (!regexCurp.test(curp)) {
+    return null;
   }
-  
+
+  const yy = parseInt(curp.substr(4, 2), 10); // posiciones 5-6
+  const mm = parseInt(curp.substr(6, 2), 10); // posiciones 7-8
+  const dd = parseInt(curp.substr(8, 2), 10); // posiciones 9-10
+
+  const currentYY = new Date().getFullYear() % 100;
+  const century = yy <= currentYY ? 2000 : 1900;
+  const fullYear = century + yy;
+
+  // Construimos la fecha en formato YYYY-MM-DD
+  const fechaStr =
+    fullYear.toString().padStart(4, "0") +
+    "-" +
+    String(mm).padStart(2, "0") +
+    "-" +
+    String(dd).padStart(2, "0");
+
+  // Validar que sea una fecha real
+  const d = new Date(fechaStr);
+  if (isNaN(d.getTime())) return null;
+
+  return fechaStr; // "YYYY-MM-DD"
+}
+const curpInput = document.getElementById("regCurp");
+const fechaNacInput = document.getElementById("regFechaNacimiento");
+
+// Cuando el usuario termina de escribir la CURP (blur) o al cambiar
+curpInput?.addEventListener("blur", () => {
+  const fecha = getBirthdateFromCurp(curpInput.value);
+
+  if (fecha) {
+    fechaNacInput.value = fecha;
+    console.log("Fecha de nacimiento desde CURP:", fecha);
+  } else {
+    fechaNacInput.value = "";
+    console.warn("CURP no válida o no se pudo obtener fecha");
+  }
+});
+
 });

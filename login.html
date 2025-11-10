@@ -19,7 +19,11 @@
     <div class="container" id="container">
       <!--REGISTRO-->
       <div class="form-container sign-up">
-        <form id="formRegistro">
+        <form
+          id="formRegistro"
+          action="php/registrar_usuario.php"
+          method="POST"
+        >
           <h1>Crea tu cuenta</h1>
 
           <div class="social-icons">
@@ -30,27 +34,38 @@
 
           <span>o utiliza tu correo electrónico para registrarte</span>
 
-          <input type="text" id="regNombre" placeholder="Nombre(s)" />
+          <input
+            type="text"
+            id="regNombre"
+            name="nombre"
+            placeholder="Nombre(s)"
+            required
+          />
           <input
             type="text"
             id="regApellidoPaterno"
-            placeholder="Apellido Patetno"
+            name="apellido_paterno"
+            placeholder="Apellido Paterno"
           />
           <input
             type="text"
             id="regApellidoMaterno"
+            name="apellido_materno"
             placeholder="Apellido Materno"
           />
           <input
             type="email"
             id="regCorreo"
+            name="correo"
             placeholder="Correo electrónico"
             required
           />
-          <input type="text" id="regCurp" placeholder="CURP" />
+          <input type="text" id="regCurp" name="curp" placeholder="CURP" />
+          <input type="date" id="regFechaNacimiento" name="fecha_nacimiento" style="display:none;" />
           <input
             type="password"
             id="regPassword"
+            name="password"
             placeholder="Contraseña"
             required
           />
@@ -66,7 +81,7 @@
 
       <!-- INICIAR SESIÓN -->
       <div class="form-container sign-in">
-        <form id="loginForm">
+        <form id="loginForm" action="php/login_usuario.php" method="POST">
           <h1>Iniciar sesión</h1>
 
           <div class="social-icons">
@@ -78,14 +93,16 @@
           <span>o usa tu cuenta registrada</span>
 
           <input
-            type="email"
-            id="loginCorreo"
-            placeholder="Correo electrónico"
+            type="text"
+            id="loginIdentidad"
+            name="identidad"
+            placeholder="Correo electrónico o CURP"
             required
           />
           <input
             type="password"
             id="loginPassword"
+            name="password"
             placeholder="Contraseña"
             required
           />
@@ -139,6 +156,38 @@
         <button class="btn-rojo--blanco" id="btnModalAceptar">Aceptar</button>
       </div>
     </div>
+
+    <div class="login-modal" id="modalRegistroError">
+      <div class="login-modal__backdrop"></div>
+      <div class="login-modal__content">
+        <div class="login-modal__icon">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h3>Cuenta ya registrada</h3>
+        <p>
+          Ya existe un usuario registrado con ese correo o CURP.<br />
+          Si olvidaste tu contraseña, solicita apoyo en tu Centro de Salud.
+        </p>
+        <button class="btn-rojo--blanco" id="btnModalErrorAceptar">
+          Aceptar
+        </button>
+      </div>
+    </div>
+
+    <div class="login-modal" id="modalLoginError">
+  <div class="login-modal__backdrop"></div>
+  <div class="login-modal__content">
+    <div class="login-modal__icon">
+      <i class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <h3>Error al iniciar sesión</h3>
+    <p id="loginErrorMsg">
+      Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.
+    </p>
+    <button class="btn-rojo--blanco" id="btnLoginErrorAceptar">Aceptar</button>
+  </div>
+</div>
+
 
     <script src="login.js"></script>
   </body>
