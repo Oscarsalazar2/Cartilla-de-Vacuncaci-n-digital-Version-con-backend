@@ -146,7 +146,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
       <button
         class="rail-item"
         title="Cerrar sesión"
-        onclick="location.href='index.html'">
+        onclick="location.href='php/logout.php'">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
     </aside>
@@ -406,7 +406,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
             </div>
             <div
               class="user-dropdown-item logout"
-              onclick="location.href='login.html'">
+              onclick="location.href='php/logout.php'">
               <i class="fa-solid fa-power-off"></i> Cerrar sesión
             </div>
           </div>

@@ -109,6 +109,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     }
 }
 
+// =======================
+//  ELIMINAR USUARIO (solo admin)
+//  POST php/api_usuarios.php
+//  action = delete
+// =======================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    // Solo el admin puede eliminar
+    if (!isset($_SESSION['id_rol']) || (int)$_SESSION['id_rol'] !== 1) {
+        echo json_encode(['ok' => false, 'error' => 'Sin permisos para eliminar usuarios']);
+        exit;
+    }
+
+    $id_usuario = (int)($_POST['id_usuario'] ?? 0);
+    if (!$id_usuario) {
+        echo json_encode(['ok' => false, 'error' => 'ID de usuario inválido.']);
+        exit;
+    }
+
+    try {
+        //  Evitar que el admin se elimine a sí mismo
+        if ($id_usuario === (int)$_SESSION['id_usuario']) {
+            echo json_encode(['ok' => false, 'error' => 'No puedes eliminar tu propia cuenta.']);
+            exit;
+        }
+
+        $stmt = $conexion->prepare("DELETE FROM usuarios WHERE id_usuario = :id");
+        $stmt->execute([':id' => $id_usuario]);
+
+        echo json_encode(['ok' => true, 'message' => 'Usuario eliminado correctamente.']);
+        exit;
+    } catch (Exception $e) {
+        echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        exit;
+    }
+}
+
+
   // ===== DEFAULT =====
   throw new Exception('Acción no válida');
 } catch (Exception $e) {
