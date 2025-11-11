@@ -92,36 +92,40 @@ try {
 
         // Insertar en aplicaciones_vacuna (tu tabla real)
         $stmtIns = $conexion->prepare("
-            INSERT INTO aplicaciones_vacuna (
-                id_usuario,
-                id_esquema,
-                fecha_aplicacion,
-                lote,
-                observaciones,
-                estado,
-                id_registrada_por,
-                fecha_registro
-            ) VALUES (
-                :id_usuario,
-                :id_esquema,
-                :fecha,
-                :lote,
-                :observaciones,
-                :estado,
-                :registrada_por,
-                NOW()
-            )
-        ");
+    INSERT INTO aplicaciones_vacuna (
+        id_usuario,
+        id_esquema,
+        id_vacuna,
+        fecha_aplicacion,
+        lote,
+        observaciones,
+        estado,
+        id_registrada_por,
+        fecha_registro
+    ) VALUES (
+        :id_usuario,
+        :id_esquema,
+        :id_vacuna,
+        :fecha,
+        :lote,
+        :observaciones,
+        :estado,
+        :registrada_por,
+        NOW()
+    )
+");
 
-        $stmtIns->execute([
-            ':id_usuario'     => $id_usuario,
-            ':id_esquema'     => $idEsquema,           // puede ser NULL si no hay esquema
-            ':fecha'          => $fecha,
-            ':lote'           => $lote ?: null,
-            ':observaciones'  => $obsFinal ?: null,
-            ':estado'         => 'APLICADA',
-            ':registrada_por' => $idUsuarioSesion
-        ]);
+$stmtIns->execute([
+    ':id_usuario'     => $id_usuario,
+    ':id_esquema'     => $idEsquema,      // puede ser NULL
+    ':id_vacuna'      => $idVacuna,       // ✅ siempre lo tienes
+    ':fecha'          => $fecha,
+    ':lote'           => $lote ?: null,
+    ':observaciones'  => $obsFinal ?: null,
+    ':estado'         => 'APLICADA',
+    ':registrada_por' => $idUsuarioSesion
+]);
+
 
         echo json_encode(['ok' => true, 'message' => 'Vacuna registrada correctamente.']);
         exit;
@@ -327,37 +331,39 @@ try {
     //    GET php/api_vacunas.php?action=detalle_vacuna&id_vacuna=XX
     // ============================
     if ($method === 'GET' && $action === 'detalle_vacuna') {
-        $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
-        if (!$idVacuna) {
-            throw new Exception('id_vacuna es obligatorio.');
-        }
-
-        $sql = "
-            SELECT
-                av.id_aplicacion,
-                av.fecha_aplicacion,
-                av.lote,
-                av.estado,
-                av.observaciones,
-                ev.dosis_numero,
-                ev.total_dosis
-            FROM aplicaciones_vacuna av
-            LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
-            WHERE av.id_usuario = :id_usuario
-              AND ev.id_vacuna = :id_vacuna
-            ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
-        ";
-
-        $stmt = $conexion->prepare($sql);
-        $stmt->execute([
-            ':id_usuario' => $idUsuarioSesion,
-            ':id_vacuna'  => $idVacuna
-        ]);
-        $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode(['ok' => true, 'data' => $detalle]);
-        exit;
+    $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
+    if (!$idVacuna) {
+        throw new Exception('id_vacuna es obligatorio.');
     }
+
+    $sql = "
+        SELECT
+            av.id_aplicacion,
+            av.fecha_aplicacion,
+            av.lote,
+            av.estado,
+            av.observaciones,
+            ev.dosis_numero,
+            ev.total_dosis
+        FROM aplicaciones_vacuna av
+        LEFT JOIN esquema_vacunas ev 
+               ON av.id_esquema = ev.id_esquema
+        WHERE av.id_usuario = :id_usuario
+          AND av.id_vacuna  = :id_vacuna
+        ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
+    ";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute([
+        ':id_usuario' => $idUsuarioSesion,
+        ':id_vacuna'  => $idVacuna
+    ]);
+    $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['ok' => true, 'data' => $detalle]);
+    exit;
+}
+
 
       // ============================
   // 6) CATÁLOGO DE VACUNAS (para el <select>)
