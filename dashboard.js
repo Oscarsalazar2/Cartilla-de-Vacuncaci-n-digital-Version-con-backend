@@ -414,7 +414,13 @@ async function cargarUsuariosDesdeAPI() {
         </td>
       `;
 
-      tablaBody.appendChild(tr);
+      //tablaBody.appendChild(tr);
+
+      if (estatus !== "PENDIENTE") {
+  // Pa cumplirle el gusto a mi mujer 
+  //bueno es obvio que dice que si es difente que PENDIENTE pues enseña la tabla
+  tablaBody.appendChild(tr);
+}
 
       if (estatus === "PENDIENTE" && adminPendientesBody) {
         const trPend = document.createElement("tr");
