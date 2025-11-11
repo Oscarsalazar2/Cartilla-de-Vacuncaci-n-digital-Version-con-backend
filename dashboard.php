@@ -354,7 +354,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
             </div>
           </form>
 
-          <!-- 🎯 ACCIONES COMUNES -->
+          <!-- ACCIONES COMUNES -->
           <div class="rv-actions">
             <button
               type="button"
@@ -418,9 +418,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
         <!-- Resumen -->
         <section class="content-section active" data-section-panel="resumen">
           <h2>Resumen de tu cartilla</h2>
-          <p class="muted">
-            Bueno aqui se mira lo principal digan si esta bien.
-          </p>
+          <p class="muted"></p>
 
           <div class="cards-grid">
             <!-- Vacunas completas -->
@@ -900,13 +898,13 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
         <section class="content-section" data-section-panel="qr">
           <h2>QR</h2>
           <p class="muted">
-            Aqui podras Generar y el qr de la Cartilla de Vacunación
+            Aquí se podrá generar el QR de la Cartilla de Vacunación
           </p>
 
           <div class="dash-card">
             <b>Generar Qr o PDF </b>
             <p>
-              Proximamente se podras generar tu QR o PDF para obtener tu
+              Proximamente se podrá generar tu QR o PDF para obtener tu
               cartilla de Vacunación
             </p>
           </div>

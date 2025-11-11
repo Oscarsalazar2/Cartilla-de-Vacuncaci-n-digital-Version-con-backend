@@ -20,9 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
     container?.classList.remove("active");
   }
 
-  // ==========================
+  
   // REGISTRO con fetch + modales
-  // ==========================
+
   const formRegistro = document.getElementById("formRegistro");
   const modalRegistroPendiente = document.getElementById("modalRegistroPendiente");
   const btnModalAceptar = document.getElementById("btnModalAceptar");
@@ -85,9 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-      // ==========================
+
   // LOGIN con fetch + modal
-  // ==========================
+
   const loginForm = document.getElementById("loginForm");
   const modalLoginError = document.getElementById("modalLoginError");
   const btnLoginErrorAceptar = document.getElementById("btnLoginErrorAceptar");

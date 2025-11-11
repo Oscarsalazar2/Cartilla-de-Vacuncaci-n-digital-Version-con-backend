@@ -1311,14 +1311,7 @@ async function cargarResumenCartilla() {
     }
 
     const dosisBD = Array.isArray(data2.data) ? data2.data : [];
-    if (dosisBD.length === 0) {
-      tbodyMatriz.innerHTML = `
-        <tr>
-          <td colspan="5">Aún no hay vacunas registradas en tu cartilla.</td>
-        </tr>
-      `;
-      return;
-    }
+   
 
     // Aquí se dibujan las letras verdes y grises (1ª, 2ª, 3ª, Rª)
     renderCartillaMatrizSlots(dosisBD);
@@ -1333,6 +1326,8 @@ async function cargarResumenCartilla() {
 }
 
 cargarResumenCartilla();
+
+
 
 // dosisBD = array de filas devueltas por api_vacunas.php?action=mis_vacunas
 function renderCartillaMatrizSlots(dosisBD) {

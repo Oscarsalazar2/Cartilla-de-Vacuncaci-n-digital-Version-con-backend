@@ -85,7 +85,7 @@
   padding: 1.5rem 40px;
   height: 100%;
   text-align: center;
-  overflow-y: auto; /* 👈 permite scroll interno */
+  overflow-y: auto; /*  permite scroll interno */
   scrollbar-width: thin; /* para navegadores modernos */
   scrollbar-color: var(--azul) #f1f5f9;
 }

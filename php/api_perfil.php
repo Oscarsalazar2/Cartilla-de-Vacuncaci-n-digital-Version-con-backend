@@ -15,9 +15,7 @@ $action = $_POST['action'] ?? '';
 
 try {
 
-    // ========================
     // GUARDAR DATOS DE CONTACTO
-    // ========================
     if ($action === 'contacto') {
         $correo   = trim($_POST['correo']   ?? '');
         $celular  = trim($_POST['celular']  ?? '');
@@ -58,9 +56,7 @@ try {
         exit;
     }
 
-    // ========================
     // GUARDAR DOMICILIO
-    // ========================
     if ($action === 'domicilio') {
         $calle       = trim($_POST['calle']       ?? '');
         $num_ext     = trim($_POST['num_exterior']?? '');

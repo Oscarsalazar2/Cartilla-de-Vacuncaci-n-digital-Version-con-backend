@@ -1156,7 +1156,7 @@ th {
 }
 
 #cartillaTablaBody tr.bloqueado td::after {
-  content: "🔒 Solo lectura";
+  content: " Solo lectura";
   position: absolute;
   right: 8px;
   bottom: 4px;

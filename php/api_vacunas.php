@@ -19,10 +19,8 @@ $action          = $_GET['action'] ?? $_POST['action'] ?? '';
 
 try {
 
-    // ============================
-    // 1) REGISTRAR VACUNA (admin / médico)
-    //    POST php/api_vacunas.php?action=registrar
-    // ============================
+    // 1) REGISTRAR VACUNA (admin / médico) POST php/api_vacunas.php?action=registrar
+  
     if ($method === 'POST' && $action === 'registrar') {
 
         // Solo admin y médico pueden registrar
@@ -92,7 +90,7 @@ try {
             $obsFinal = trim($obsFinal . " | Dosis: " . $dosisTxt);
         }
 
-        // 3) Insertar en aplicaciones_vacuna (tu tabla real)
+        // Insertar en aplicaciones_vacuna (tu tabla real)
         $stmtIns = $conexion->prepare("
             INSERT INTO aplicaciones_vacuna (
                 id_usuario,
@@ -129,10 +127,7 @@ try {
         exit;
     }
 
-    // ============================
-    // 2) MIS VACUNAS (Historial del usuario logueado)
-    //    GET php/api_vacunas.php?action=mis_vacunas
-    // ============================
+    // MIS VACUNAS (Historial del usuario logueado) GET php/api_vacunas.php?action=mis_vacunas
     if ($method === 'GET' && $action === 'mis_vacunas') {
         $idUsuario = $idUsuarioSesion;
 
@@ -168,10 +163,7 @@ try {
         exit;
     }
 
-    // ============================
-    // 3) RESUMEN DE CARTILLA (panel principal)
-    //    GET php/api_vacunas.php?action=resumen
-    // ============================
+    // RESUMEN DE CARTILLA (panel principal) GET php/api_vacunas.php?action=resumen 
     if ($method === 'GET' && $action === 'resumen') {
         $idUsuario = $idUsuarioSesion;
 
@@ -196,30 +188,32 @@ try {
 
         // Matriz por vacuna
         $sqlMatriz = "
-            SELECT
-                v.id_vacuna,
-                v.clave,
-                v.nombre AS vacuna,
-                MAX(av.fecha_aplicacion) AS ultima_fecha,
-                COUNT(av.id_aplicacion) AS dosis_aplicadas,
-                COALESCE(MAX(ev.total_dosis), 0) AS total_dosis,
-                CASE
-                    WHEN COUNT(av.id_aplicacion) >= COALESCE(MAX(ev.total_dosis), 0)
-                         AND COALESCE(MAX(ev.total_dosis), 0) > 0
-                        THEN 'Completa'
-                    WHEN COUNT(av.id_aplicacion) > 0
-                        THEN 'En progreso'
-                    ELSE 'Pendiente'
-                END AS estado
-            FROM esquema_vacunas ev
-            JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
-            LEFT JOIN aplicaciones_vacuna av
-                   ON av.id_esquema = ev.id_esquema
-                  AND av.id_usuario = :id
-                  AND av.estado = 'APLICADA'
-            GROUP BY v.id_vacuna, v.clave, v.nombre
-            ORDER BY v.nombre
-        ";
+    SELECT
+        v.id_vacuna,
+        v.clave,
+        v.nombre AS vacuna,
+        MAX(av.fecha_aplicacion) AS ultima_fecha,
+        COUNT(av.id_aplicacion) AS dosis_aplicadas,
+        COALESCE(MAX(ev.total_dosis), 0) AS total_dosis,
+        CASE
+            WHEN COUNT(av.id_aplicacion) >= COALESCE(MAX(ev.total_dosis), 0)
+                 AND COALESCE(MAX(ev.total_dosis), 0) > 0
+                THEN 'Completa'
+            WHEN COUNT(av.id_aplicacion) > 0
+                THEN 'En progreso'
+            ELSE 'Pendiente'
+        END AS estado
+    FROM esquema_vacunas ev
+    JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
+    LEFT JOIN aplicaciones_vacuna av
+           ON av.id_esquema = ev.id_esquema
+          AND av.id_usuario = :id
+          AND av.estado = 'APLICADA'
+    GROUP BY v.id_vacuna, v.clave, v.nombre
+    HAVING COUNT(av.id_aplicacion) > 0
+    ORDER BY v.nombre
+";
+
 
         $stmtMat = $conexion->prepare($sqlMatriz);
         $stmtMat->execute([':id' => $idUsuario]);
@@ -292,10 +286,7 @@ try {
         exit;
     }
 
-    // ============================
-    // 4) ESQUEMA_USUARIO (para la cartilla bonita)
-    //    GET php/api_vacunas.php?action=esquema_usuario
-    // ============================
+    // 4) ESQUEMA_USUARIO (para la cartilla bonita) GET php/api_vacunas.php?action=esquema_usuario
     if ($method === 'GET' && $action === 'esquema_usuario') {
         $idUsuario = $idUsuarioSesion;
 

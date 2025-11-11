@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // A partir de aquí solo respondemos en JSON
 header('Content-Type: application/json');
 
-// -------- FUNCION: OBTENER FECHA DE NACIMIENTO DESDE CURP --------
+// -------- FUNCION: FECHA DE NACIMIENTO DESDE CURP --------
 function fechaNacimientoDesdeCurp(string $curp): ?string {
     $curp = strtoupper(trim($curp));
 
@@ -20,7 +20,7 @@ function fechaNacimientoDesdeCurp(string $curp): ?string {
         return null;
     }
 
-    // posiciones 5-6 = año, 7-8 = mes, 9-10 = día
+    // posiciones sexuales 5-6 = año, 7-8 = mes, 9-10 = día
     $yy = (int)substr($curp, 4, 2);
     $mm = (int)substr($curp, 6, 2);
     $dd = (int)substr($curp, 8, 2);

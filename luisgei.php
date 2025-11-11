@@ -41,5 +41,5 @@ try {
     echo "Contraseña: <b>$password</b><br>";
 
 } catch (PDOException $e) {
-    echo "❌ Error al insertar usuario demo: " . $e->getMessage();
+    echo "Error al insertar usuario demo: " . $e->getMessage();
 }

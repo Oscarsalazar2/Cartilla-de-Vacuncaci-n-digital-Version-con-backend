@@ -109,11 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     }
 }
 
-// =======================
-//  ELIMINAR USUARIO (solo admin)
-//  POST php/api_usuarios.php
-//  action = delete
-// =======================
+//  ELIMINAR USUARIO (solo admin) POST php/api_usuarios.php action = delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
     // Solo el admin puede eliminar
     if (!isset($_SESSION['id_rol']) || (int)$_SESSION['id_rol'] !== 1) {
