@@ -19,8 +19,10 @@ $action          = $_GET['action'] ?? $_POST['action'] ?? '';
 
 try {
 
-    // 1) REGISTRAR VACUNA (admin / médico) POST php/api_vacunas.php?action=registrar
-  
+    // ============================
+    // 1) REGISTRAR VACUNA (admin / médico)
+    //    POST php/api_vacunas.php?action=registrar
+    // ============================
     if ($method === 'POST' && $action === 'registrar') {
 
         // Solo admin y médico pueden registrar
@@ -90,55 +92,57 @@ try {
             $obsFinal = trim($obsFinal . " | Dosis: " . $dosisTxt);
         }
 
-        // Insertar en aplicaciones_vacuna (tu tabla real)
+        // 3) Insertar en aplicaciones_vacuna (tu tabla real)
         $stmtIns = $conexion->prepare("
-    INSERT INTO aplicaciones_vacuna (
-        id_usuario,
-        id_esquema,
-        id_vacuna,
-        fecha_aplicacion,
-        lote,
-        observaciones,
-        estado,
-        id_registrada_por,
-        fecha_registro
-    ) VALUES (
-        :id_usuario,
-        :id_esquema,
-        :id_vacuna,
-        :fecha,
-        :lote,
-        :observaciones,
-        :estado,
-        :registrada_por,
-        NOW()
-    )
-");
+            INSERT INTO aplicaciones_vacuna (
+                id_usuario,
+                id_esquema,
+                id_vacuna,
+                fecha_aplicacion,
+                lote,
+                observaciones,
+                estado,
+                id_registrada_por,
+                fecha_registro
+            ) VALUES (
+                :id_usuario,
+                :id_esquema,
+                :id_vacuna,
+                :fecha,
+                :lote,
+                :observaciones,
+                :estado,
+                :registrada_por,
+                NOW()
+            )
+        ");
 
-$stmtIns->execute([
-    ':id_usuario'     => $id_usuario,
-    ':id_esquema'     => $idEsquema,      // puede ser NULL
-    ':id_vacuna'      => $idVacuna,       // ✅ siempre lo tienes
-    ':fecha'          => $fecha,
-    ':lote'           => $lote ?: null,
-    ':observaciones'  => $obsFinal ?: null,
-    ':estado'         => 'APLICADA',
-    ':registrada_por' => $idUsuarioSesion
-]);
-
+        $stmtIns->execute([
+            ':id_usuario'     => $id_usuario,
+            ':id_esquema'     => $idEsquema,      // puede ser NULL
+            ':id_vacuna'      => $idVacuna,       // ✅ siempre lo tienes
+            ':fecha'          => $fecha,
+            ':lote'           => $lote ?: null,
+            ':observaciones'  => $obsFinal ?: null,
+            ':estado'         => 'APLICADA',
+            ':registrada_por' => $idUsuarioSesion
+        ]);
 
         echo json_encode(['ok' => true, 'message' => 'Vacuna registrada correctamente.']);
         exit;
     }
 
-    // MIS VACUNAS (Historial del usuario logueado) GET php/api_vacunas.php?action=mis_vacunas
+    // ============================
+    // 2) MIS VACUNAS (Historial del usuario logueado)
+    //    GET php/api_vacunas.php?action=mis_vacunas
+    // ============================
     if ($method === 'GET' && $action === 'mis_vacunas') {
         $idUsuario = $idUsuarioSesion;
 
         $sql = "
             SELECT
                 av.id_aplicacion,
-                v.id_vacuna,
+                COALESCE(av.id_vacuna, v.id_vacuna) AS id_vacuna,
                 COALESCE(v.nombre, 'Vacuna') AS vacuna,
                 v.clave AS clave_vacuna,
                 av.fecha_aplicacion AS fecha,
@@ -154,7 +158,7 @@ $stmtIns->execute([
                 av.observaciones
             FROM aplicaciones_vacuna av
             LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
-            LEFT JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
+            LEFT JOIN vacunas v ON v.id_vacuna = COALESCE(av.id_vacuna, ev.id_vacuna)
             WHERE av.id_usuario = :id
             ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
         ";
@@ -167,7 +171,10 @@ $stmtIns->execute([
         exit;
     }
 
-    // RESUMEN DE CARTILLA (panel principal) GET php/api_vacunas.php?action=resumen 
+    // ============================
+    // 3) RESUMEN DE CARTILLA (panel principal)
+    //    GET php/api_vacunas.php?action=resumen 
+    // ============================
     if ($method === 'GET' && $action === 'resumen') {
         $idUsuario = $idUsuarioSesion;
 
@@ -190,34 +197,33 @@ $stmtIns->execute([
         $totalDosisEsquema = (int)$totales['total_dosis_esquema'];
         $dosisAplicadas    = (int)$totales['dosis_aplicadas'];
 
-        // Matriz por vacuna
+        // Matriz por vacuna - SOLO las que tienen al menos una dosis aplicada (HAVING)
         $sqlMatriz = "
-    SELECT
-        v.id_vacuna,
-        v.clave,
-        v.nombre AS vacuna,
-        MAX(av.fecha_aplicacion) AS ultima_fecha,
-        COUNT(av.id_aplicacion) AS dosis_aplicadas,
-        COALESCE(MAX(ev.total_dosis), 0) AS total_dosis,
-        CASE
-            WHEN COUNT(av.id_aplicacion) >= COALESCE(MAX(ev.total_dosis), 0)
-                 AND COALESCE(MAX(ev.total_dosis), 0) > 0
-                THEN 'Completa'
-            WHEN COUNT(av.id_aplicacion) > 0
-                THEN 'En progreso'
-            ELSE 'Pendiente'
-        END AS estado
-    FROM esquema_vacunas ev
-    JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
-    LEFT JOIN aplicaciones_vacuna av
-           ON av.id_esquema = ev.id_esquema
-          AND av.id_usuario = :id
-          AND av.estado = 'APLICADA'
-    GROUP BY v.id_vacuna, v.clave, v.nombre
-    HAVING COUNT(av.id_aplicacion) > 0
-    ORDER BY v.nombre
-";
-
+            SELECT
+                v.id_vacuna,
+                v.clave,
+                v.nombre AS vacuna,
+                MAX(av.fecha_aplicacion) AS ultima_fecha,
+                COUNT(av.id_aplicacion) AS dosis_aplicadas,
+                COALESCE(MAX(ev.total_dosis), 0) AS total_dosis,
+                CASE
+                    WHEN COUNT(av.id_aplicacion) >= COALESCE(MAX(ev.total_dosis), 0)
+                         AND COALESCE(MAX(ev.total_dosis), 0) > 0
+                        THEN 'Completa'
+                    WHEN COUNT(av.id_aplicacion) > 0
+                        THEN 'En progreso'
+                    ELSE 'Pendiente'
+                END AS estado
+            FROM esquema_vacunas ev
+            JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
+            LEFT JOIN aplicaciones_vacuna av
+                   ON av.id_esquema = ev.id_esquema
+                  AND av.id_usuario = :id
+                  AND av.estado = 'APLICADA'
+            GROUP BY v.id_vacuna, v.clave, v.nombre
+            HAVING COUNT(av.id_aplicacion) > 0
+            ORDER BY v.nombre
+        ";
 
         $stmtMat = $conexion->prepare($sqlMatriz);
         $stmtMat->execute([':id' => $idUsuario]);
@@ -232,8 +238,6 @@ $stmtIns->execute([
         }
 
         // ---- Calcular alertas reales (vacunas atrasadas) ----
-
-        // Obtener fecha de nacimiento del usuario
         $stmtFn = $conexion->prepare("SELECT fecha_nacimiento FROM usuarios WHERE id_usuario = :id");
         $stmtFn->execute([':id' => $idUsuario]);
         $fechaNac = $stmtFn->fetchColumn();
@@ -290,7 +294,10 @@ $stmtIns->execute([
         exit;
     }
 
-    // 4) ESQUEMA_USUARIO (para la cartilla bonita) GET php/api_vacunas.php?action=esquema_usuario
+    // ============================
+    // 4) ESQUEMA_USUARIO (para la cartilla bonita)
+    //    GET php/api_vacunas.php?action=esquema_usuario
+    // ============================
     if ($method === 'GET' && $action === 'esquema_usuario') {
         $idUsuario = $idUsuarioSesion;
 
@@ -331,111 +338,112 @@ $stmtIns->execute([
     //    GET php/api_vacunas.php?action=detalle_vacuna&id_vacuna=XX
     // ============================
     if ($method === 'GET' && $action === 'detalle_vacuna') {
-    $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
-    if (!$idVacuna) {
-        throw new Exception('id_vacuna es obligatorio.');
+        $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
+        if (!$idVacuna) {
+            throw new Exception('id_vacuna es obligatorio.');
+        }
+
+        $sql = "
+            SELECT
+                av.id_aplicacion,
+                av.fecha_aplicacion,
+                av.lote,
+                av.estado,
+                av.observaciones,
+                ev.dosis_numero,
+                ev.total_dosis
+            FROM aplicaciones_vacuna av
+            LEFT JOIN esquema_vacunas ev 
+                   ON av.id_esquema = ev.id_esquema
+            WHERE av.id_usuario = :id_usuario
+              AND (
+                    av.id_vacuna = :id_vacuna
+                    OR (av.id_vacuna IS NULL AND ev.id_vacuna = :id_vacuna)
+                  )
+            ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
+        ";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([
+            ':id_usuario' => $idUsuarioSesion,
+            ':id_vacuna'  => $idVacuna
+        ]);
+        $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['ok' => true, 'data' => $detalle]);
+        exit;
     }
-
-    $sql = "
-        SELECT
-            av.id_aplicacion,
-            av.fecha_aplicacion,
-            av.lote,
-            av.estado,
-            av.observaciones,
-            ev.dosis_numero,
-            ev.total_dosis
-        FROM aplicaciones_vacuna av
-        LEFT JOIN esquema_vacunas ev 
-               ON av.id_esquema = ev.id_esquema
-        WHERE av.id_usuario = :id_usuario
-          AND av.id_vacuna  = :id_vacuna
-        ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
-    ";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([
-        ':id_usuario' => $idUsuarioSesion,
-        ':id_vacuna'  => $idVacuna
-    ]);
-    $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode(['ok' => true, 'data' => $detalle]);
-    exit;
-}
-
-
-      // ============================
-  // 6) CATÁLOGO DE VACUNAS (para el <select>)
-  //    GET php/api_vacunas.php?action=catalogo_vacunas
-  // ============================
-  if ($method === 'GET' && $action === 'catalogo_vacunas') {
-
-    $sql = "SELECT id_vacuna, clave, nombre 
-            FROM vacunas
-            ORDER BY nombre ASC";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute();
-    $vacunas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode([
-      'ok'   => true,
-      'data' => $vacunas
-    ]);
-    exit;
-  }
 
     // ============================
-  // 7) MIS VACUNAS DE UN USUARIO ESPECÍFICO (para modal admin / médico)
-  //    GET php/api_vacunas.php?action=mis_vacunas_usuario&id_usuario=123
-  // ============================
-  if ($method === 'GET' && $action === 'mis_vacunas_usuario') {
-    // id del usuario que queremos consultar
-    $idUsuario = (int)($_GET['id_usuario'] ?? 0);
-    if (!$idUsuario) {
-      throw new Exception('id_usuario es obligatorio.');
+    // 6) CATÁLOGO DE VACUNAS (para el <select>)
+    //    GET php/api_vacunas.php?action=catalogo_vacunas
+    // ============================
+    if ($method === 'GET' && $action === 'catalogo_vacunas') {
+
+        $sql = "SELECT id_vacuna, clave, nombre 
+                FROM vacunas
+                ORDER BY nombre ASC";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
+        $vacunas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'ok'   => true,
+            'data' => $vacunas
+        ]);
+        exit;
     }
 
-    // Seguridad: ciudadanos solo pueden ver su propia cartilla
-    if ($idRol === 3 && $idUsuario !== $idUsuarioSesion) {
-      http_response_code(403);
-      echo json_encode(['ok' => false, 'error' => 'No autorizado']);
-      exit;
+    // ============================
+    // 7) MIS VACUNAS DE UN USUARIO ESPECÍFICO (para modal admin / médico)
+    //    GET php/api_vacunas.php?action=mis_vacunas_usuario&id_usuario=123
+    // ============================
+    if ($method === 'GET' && $action === 'mis_vacunas_usuario') {
+        // id del usuario que queremos consultar
+        $idUsuario = (int)($_GET['id_usuario'] ?? 0);
+        if (!$idUsuario) {
+            throw new Exception('id_usuario es obligatorio.');
+        }
+
+        // Seguridad: ciudadanos solo pueden ver su propia cartilla
+        if ($idRol === 3 && $idUsuario !== $idUsuarioSesion) {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'error' => 'No autorizado']);
+            exit;
+        }
+
+        $sql = "
+          SELECT
+            av.id_aplicacion,
+            COALESCE(av.id_vacuna, v.id_vacuna) AS id_vacuna,
+            COALESCE(v.nombre, 'Vacuna') AS vacuna,
+            v.clave AS clave_vacuna,
+            av.fecha_aplicacion AS fecha,
+            ev.dosis_numero,
+            ev.total_dosis,
+            CASE
+              WHEN ev.dosis_numero IS NOT NULL AND ev.total_dosis IS NOT NULL THEN
+                ev.dosis_numero::text || ' / ' || ev.total_dosis::text
+              ELSE NULL
+            END AS dosis,
+            av.estado,
+            av.lote,
+            av.observaciones
+          FROM aplicaciones_vacuna av
+          LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
+          LEFT JOIN vacunas v         ON v.id_vacuna = COALESCE(av.id_vacuna, ev.id_vacuna)
+          WHERE av.id_usuario = :id
+          ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
+        ";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([':id' => $idUsuario]);
+        $vacunas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['ok' => true, 'data' => $vacunas]);
+        exit;
     }
-
-    $sql = "
-      SELECT
-        av.id_aplicacion,
-        v.id_vacuna,
-        COALESCE(v.nombre, 'Vacuna') AS vacuna,
-        v.clave AS clave_vacuna,
-        av.fecha_aplicacion AS fecha,
-        ev.dosis_numero,
-        ev.total_dosis,
-        CASE
-          WHEN ev.dosis_numero IS NOT NULL AND ev.total_dosis IS NOT NULL THEN
-            ev.dosis_numero::text || ' / ' || ev.total_dosis::text
-          ELSE NULL
-        END AS dosis,
-        av.estado,
-        av.lote,
-        av.observaciones
-      FROM aplicaciones_vacuna av
-      LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
-      LEFT JOIN vacunas v         ON ev.id_vacuna   = v.id_vacuna
-      WHERE av.id_usuario = :id
-      ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
-    ";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([':id' => $idUsuario]);
-    $vacunas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode(['ok' => true, 'data' => $vacunas]);
-    exit;
-  }
-
 
     // -------- Acción no reconocida --------
     http_response_code(400);
@@ -447,4 +455,3 @@ $stmtIns->execute([
     echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
     exit;
 }
-
