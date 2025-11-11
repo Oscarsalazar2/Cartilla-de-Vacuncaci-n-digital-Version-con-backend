@@ -11,10 +11,30 @@ if (!isset($_SESSION['id_usuario'])) {
 $idUsuario = $_SESSION['id_usuario'];
 
 try {
-  $sql = "SELECT u.*, r.clave AS rol_clave, r.nombre AS rol_nombre
-            FROM usuarios u
-            JOIN roles r ON u.id_rol = r.id_rol
-            WHERE u.id_usuario = :id";
+  $sql = "SELECT
+            u.id_usuario,
+            u.nombre,
+            u.apellido_paterno,
+            u.apellido_materno,
+            u.correo,
+            u.curp,
+            u.id_rol,
+            u.celular,
+            u.telefono,
+            u.calle,
+            u.num_exterior,
+            u.num_interior,
+            u.colonia,
+            u.ciudad,
+            u.estado,
+            u.cp,
+            u.entre_calles,
+            u.fecha_nacimiento,
+            r.clave AS rol_clave,
+            r.nombre AS rol_nombre
+          FROM usuarios u
+          JOIN roles r ON u.id_rol = r.id_rol
+          WHERE u.id_usuario = :id";
   $stmt = $conexion->prepare($sql);
   $stmt->execute([':id' => $idUsuario]);
   $usuario = $stmt->fetch(PDO::FETCH_ASSOC);

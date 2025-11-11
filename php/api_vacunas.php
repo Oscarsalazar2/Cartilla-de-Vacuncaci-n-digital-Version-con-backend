@@ -138,7 +138,7 @@ $stmtIns->execute([
         $sql = "
             SELECT
                 av.id_aplicacion,
-                v.id_vacuna,
+                COALESCE(av.id_vacuna, v.id_vacuna) AS id_vacuna,
                 COALESCE(v.nombre, 'Vacuna') AS vacuna,
                 v.clave AS clave_vacuna,
                 av.fecha_aplicacion AS fecha,
@@ -154,7 +154,7 @@ $stmtIns->execute([
                 av.observaciones
             FROM aplicaciones_vacuna av
             LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
-            LEFT JOIN vacunas v ON ev.id_vacuna = v.id_vacuna
+            LEFT JOIN vacunas v ON v.id_vacuna = COALESCE(av.id_vacuna, ev.id_vacuna)
             WHERE av.id_usuario = :id
             ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
         ";
@@ -331,38 +331,38 @@ $stmtIns->execute([
     //    GET php/api_vacunas.php?action=detalle_vacuna&id_vacuna=XX
     // ============================
     if ($method === 'GET' && $action === 'detalle_vacuna') {
-    $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
-    if (!$idVacuna) {
-        throw new Exception('id_vacuna es obligatorio.');
+        $idVacuna = (int)($_GET['id_vacuna'] ?? 0);
+        if (!$idVacuna) {
+            throw new Exception('id_vacuna es obligatorio.');
+        }
+
+        $sql = "
+            SELECT
+                av.id_aplicacion,
+                av.fecha_aplicacion,
+                av.lote,
+                av.estado,
+                av.observaciones,
+                ev.dosis_numero,
+                ev.total_dosis
+            FROM aplicaciones_vacuna av
+            LEFT JOIN esquema_vacunas ev
+                   ON av.id_esquema = ev.id_esquema
+            WHERE av.id_usuario = :id_usuario
+              AND COALESCE(av.id_vacuna, ev.id_vacuna) = :id_vacuna
+            ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
+        ";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([
+            ':id_usuario' => $idUsuarioSesion,
+            ':id_vacuna'  => $idVacuna
+        ]);
+        $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['ok' => true, 'data' => $detalle]);
+        exit;
     }
-
-    $sql = "
-        SELECT
-            av.id_aplicacion,
-            av.fecha_aplicacion,
-            av.lote,
-            av.estado,
-            av.observaciones,
-            ev.dosis_numero,
-            ev.total_dosis
-        FROM aplicaciones_vacuna av
-        LEFT JOIN esquema_vacunas ev 
-               ON av.id_esquema = ev.id_esquema
-        WHERE av.id_usuario = :id_usuario
-          AND av.id_vacuna  = :id_vacuna
-        ORDER BY av.fecha_aplicacion ASC, av.id_aplicacion ASC
-    ";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([
-        ':id_usuario' => $idUsuarioSesion,
-        ':id_vacuna'  => $idVacuna
-    ]);
-    $detalle = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode(['ok' => true, 'data' => $detalle]);
-    exit;
-}
 
 
       // ============================
