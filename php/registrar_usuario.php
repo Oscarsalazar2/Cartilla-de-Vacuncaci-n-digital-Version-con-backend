@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // A partir de aquí solo respondemos en JSON
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // -------- FUNCION: FECHA DE NACIMIENTO DESDE CURP --------
 function fechaNacimientoDesdeCurp(string $curp): ?string {
@@ -20,7 +20,7 @@ function fechaNacimientoDesdeCurp(string $curp): ?string {
         return null;
     }
 
-    // posiciones sexuales 5-6 = año, 7-8 = mes, 9-10 = día
+    // posiciones 5-6 = año, 7-8 = mes, 9-10 = día
     $yy = (int)substr($curp, 4, 2);
     $mm = (int)substr($curp, 6, 2);
     $dd = (int)substr($curp, 8, 2);
@@ -77,14 +77,18 @@ if ($curp !== '' && $fecha_nacimiento === '') {
 }
 
 try {
-    //Verificar si ya existe un usuario con ese correo o CURP
-    $sqlCheck = "SELECT id_usuario FROM usuarios 
-                 WHERE correo = :correo OR (curp <> '' AND curp = :curp)";
+
+    // 2. Verificar si ya existe un usuario con ese correo o CURP (case-insensitive)
+    $paramsCheck = [':correo' => strtolower($correo)];
+    $sqlCheck = "SELECT id_usuario FROM usuarios WHERE LOWER(correo) = :correo";
+
+    if ($curp !== '') {
+        $sqlCheck .= " OR UPPER(curp) = :curp";
+        $paramsCheck[':curp'] = strtoupper($curp);
+    }
+
     $stmtCheck = $conexion->prepare($sqlCheck);
-    $stmtCheck->execute([
-        ':correo' => $correo,
-        ':curp'   => $curp
-    ]);
+    $stmtCheck->execute($paramsCheck);
 
     if ($stmtCheck->fetch()) {
         echo json_encode([
@@ -95,14 +99,20 @@ try {
         exit;
     }
 
-    // 4. Hash seguro de la contraseña
+    // 3. Hash seguro de la contraseña
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-    // 5. Insertar usuario nuevo como Usuario (id_rol = 3) y estatus PENDIENTE
-    $sqlInsert = "INSERT INTO usuarios 
-        (nombre, apellido_paterno, apellido_materno, correo, curp, fecha_nacimiento, password_hash, id_rol, estatus, fecha_registro)
+    // 4. Insertar usuario nuevo como Usuario (id_rol = 3) y estatus PENDIENTE
+    $sqlInsert = "
+        INSERT INTO usuarios 
+            (nombre, apellido_paterno, apellido_materno,
+             correo, curp, fecha_nacimiento,
+             password_hash, id_rol, estatus, fecha_registro)
         VALUES 
-        (:nombre, :ap_pat, :ap_mat, :correo, :curp, :fecha_nacimiento, :password_hash, :id_rol, 'PENDIENTE', NOW())";
+            (:nombre, :ap_pat, :ap_mat,
+             :correo, :curp, :fecha_nacimiento,
+             :password_hash, :id_rol, 'PENDIENTE', NOW())
+    ";
 
     $stmtInsert = $conexion->prepare($sqlInsert);
     $stmtInsert->execute([
@@ -110,7 +120,7 @@ try {
         ':ap_pat'           => $ap_pat,
         ':ap_mat'           => $ap_mat,
         ':correo'           => $correo,
-        ':curp'             => $curp,
+        ':curp'             => ($curp !== '' ? strtoupper($curp) : null),
         ':fecha_nacimiento' => ($fecha_nacimiento !== '' ? $fecha_nacimiento : null),
         ':password_hash'    => $passwordHash,
         ':id_rol'           => 3  // 3 = Usuario
@@ -124,10 +134,34 @@ try {
     exit;
 
 } catch (PDOException $e) {
+
+    // 23505 = UNIQUE VIOLATION en PostgreSQL (por los índices únicos)
+    if ($e->getCode() === '23505') {
+        $msg = $e->getMessage();
+
+        if (stripos($msg, 'usuarios_correo_unico') !== false) {
+            $errorLegible = 'Este correo ya está registrado.';
+        } elseif (stripos($msg, 'usuarios_curp_unico') !== false) {
+            $errorLegible = 'Esta CURP ya está registrada.';
+        } else {
+            $errorLegible = 'Correo o CURP ya registrados.';
+        }
+
+        echo json_encode([
+            'ok' => false,
+            'code' => 'duplicate',
+            'message' => $errorLegible
+        ]);
+        exit;
+    }
+
+    // Otros errores de BD
     echo json_encode([
         'ok' => false,
         'code' => 'db',
-        'message' => 'Error al registrar usuario: ' . $e->getMessage()
+        'message' => 'Error al registrar usuario.'
+        // Si quieres loguear el error real, hazlo a archivo, no al usuario:
+        // 'debug' => $e->getMessage()
     ]);
     exit;
 }
