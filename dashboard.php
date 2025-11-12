@@ -261,12 +261,10 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
             </label>
 
             <label class="perfil-field">
-              <span>Dosis</span>
-              <input
-                type="text"
-                id="rvDosis"
-                placeholder="Ej. 2 / 3"
-                required />
+              <span>Marca</span>
+              <select id="rvMarca" >
+                <option value="">seleccionar...</option>
+              </select>
             </label>
 
             <label class="perfil-field">
@@ -281,6 +279,15 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
             <label class="perfil-field">
               <span>Fecha de aplicación</span>
               <input type="date" id="rvFecha" required />
+            </label>
+
+            <label class="perfil-field">
+              <span>Dosis</span>
+              <input
+                type="text"
+                id="rvDosis"
+                placeholder="Ej. 2 / 3"
+                required />
             </label>
 
             <label class="perfil-field perfil-field-full">
@@ -302,7 +309,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
       </div>
     </div>
 
-    <!-- MODAL: Editar usuario (demo) -->
+    <!-- MODAL: Editar usuario  -->
     <!-- MODAL: Edición avanzada (usuario + última dosis) -->
     <div class="pac-modal" id="modalEdicionAvanzada">
       <div class="pac-modal-backdrop" data-close-edicion-avanzada></div>
@@ -551,9 +558,8 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
                   <tr>
                     <th>Dosis</th>
                     <th>Fecha</th>
-                    <th>Marca</th>
                     <th>Lote</th>
-                    <th>Acción</th>
+                    <th>Estado</th>
                   </tr>
                 </thead>
                 <tbody id="modalVacunaTablaBody">
@@ -977,7 +983,6 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
     </div>
   </div>
   <script src="dashboard.js"></script>
-  <script src="vacunas-esquema.js"></script>
   <script src="app.js"></script>
   <script>
     window.userData = {

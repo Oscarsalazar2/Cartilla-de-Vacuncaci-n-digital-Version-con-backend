@@ -417,10 +417,10 @@ async function cargarUsuariosDesdeAPI() {
       //tablaBody.appendChild(tr);
 
       if (estatus !== "PENDIENTE") {
-  // Pa cumplirle el gusto a mi mujer 
-  //bueno es obvio que dice que si es difente que PENDIENTE pues enseña la tabla
-  tablaBody.appendChild(tr);
-}
+        // Pa cumplirle el gusto a mi mujer
+        //bueno es obvio que dice que si es difente que PENDIENTE pues enseña la tabla
+        tablaBody.appendChild(tr);
+      }
 
       if (estatus === "PENDIENTE" && adminPendientesBody) {
         const trPend = document.createElement("tr");
@@ -459,27 +459,23 @@ async function cargarVacunasEnSelect() {
   const select = document.getElementById("rvVacuna");
   if (!select) return;
 
-  // Mientras carga
   select.innerHTML = `<option value="">Cargando...</option>`;
 
   try {
     const resp = await fetch("php/api_vacunas.php?action=catalogo_vacunas");
     const data = await resp.json();
-
-    if (!data.ok) {
+    if (!data.ok)
       throw new Error(data.error || "Error en API catalogo_vacunas");
-    }
 
     const vacunas = Array.isArray(data.data) ? data.data : [];
-
-    // Limpiar y poner opción por defecto
     select.innerHTML = `<option value="">Seleccionar...</option>`;
 
-    // Agregar una opción por cada vacuna
     vacunas.forEach((v) => {
       const opt = document.createElement("option");
-      // Como tu API de registrar busca por NOMBRE, dejamos el value = nombre
-      opt.value = v.nombre;
+      // value = id_vacuna para poder calcular dosis en la API
+      opt.value = String(v.id_vacuna);
+      // guardamos el nombre para el POST
+      opt.dataset.nombre = v.nombre;
       opt.textContent = v.nombre;
       select.appendChild(opt);
     });
@@ -754,10 +750,78 @@ const rvObs = document.getElementById("rvObs");
 const rvCancelar = document.getElementById("rvCancelar");
 const formRegistrarVacuna = document.getElementById("formRegistrarVacuna");
 
+// ================================
+// Calcular automáticamente la dosis siguiente
+// ================================
+async function calcularDosisSiguiente() {
+  if (!rvVacuna || !rvDosis) return;
+
+  const idVacuna = rvVacuna.value; // debe contener el id_vacuna del <option value="...">
+  const idUsuario = idCartillaActual; // usuario actual en el modal de registro
+
+  // Validar
+  if (!idVacuna || !idUsuario) {
+    rvDosis.value = "";
+    return;
+  }
+
+  try {
+    const resp = await fetch(
+      `php/api_vacunas.php?action=dosis_siguiente&id_usuario=${encodeURIComponent(
+        idUsuario
+      )}&id_vacuna=${encodeURIComponent(idVacuna)}`
+    );
+    const data = await resp.json();
+
+    if (data.ok && data.dosis_siguiente) {
+      rvDosis.value = data.dosis_siguiente; // ejemplo "2 / 3"
+      rvDosis.readOnly = true; // bloquear edición manual
+    } else {
+      rvDosis.value = "1 / 1"; // si no tiene esquema
+      rvDosis.readOnly = true;
+    }
+  } catch (err) {
+    console.error("Error calculando dosis siguiente:", err);
+    rvDosis.value = "1 / 1";
+    rvDosis.readOnly = true;
+  }
+}
+
+// Escuchar cuando cambie la vacuna seleccionada
+rvVacuna?.addEventListener("change", calcularDosisSiguiente);
+
+// También llamar cuando se abra el modal de registro
 function abrirModalRegistrar(nombrePaciente) {
   if (!modalRegistrarVacuna) return;
   rvPaciente.value = nombrePaciente || "";
   modalRegistrarVacuna.classList.add("open");
+
+  // recalcula automáticamente la dosis después de abrir
+  setTimeout(calcularDosisSiguiente, 200);
+}
+
+// ============================
+// Abrir / cerrar modal
+// ============================
+function abrirModalRegistrar(nombrePaciente) {
+  if (!modalRegistrarVacuna) return;
+
+  // limpiar campos
+  rvPaciente.value = nombrePaciente || "";
+  if (rvVacuna) rvVacuna.value = "";
+  if (rvDosis) {
+    rvDosis.value = "";
+    rvDosis.readOnly = true;
+  }
+  if (rvLote) rvLote.value = "";
+  if (rvFecha) rvFecha.value = "";
+  if (rvObs) rvObs.value = "";
+
+  modalRegistrarVacuna.classList.add("open");
+
+  // Si ya hay un usuario seleccionado y la vacuna estuviera preseleccionada,
+  // recalcula en el siguiente ciclo de eventos
+  setTimeout(calcularDosisSiguiente, 0);
 }
 
 function cerrarModalRegistrar() {
@@ -776,7 +840,9 @@ document
     el.addEventListener("click", cerrarModalRegistrar);
   });
 
+// ============================
 // Registrar vacuna desde cartilla (botón dentro del modal de cartilla)
+// ============================
 btnRegistrarDesdeCartilla?.addEventListener("click", () => {
   const nombre = cartillaNombreUsuario?.textContent?.trim() || "";
   const correo = cartillaEmailUsuario?.textContent?.trim() || "";
@@ -792,10 +858,13 @@ btnRegistrarDesdeCartilla?.addEventListener("click", () => {
   }
 
   emailCartillaActual = correo;
+  // aquí idCartillaActual ya debería estar seteado cuando abriste esa cartilla
   abrirModalRegistrar(nombre);
 });
 
+// ============================
 // Registrar vacuna desde el botón "+" en la tabla de usuarios
+// ============================
 tablaUsuarios?.addEventListener("click", (e) => {
   const btnAgregar = e.target.closest(".agregar-vacuna-usuario");
   if (!btnAgregar) return;
@@ -829,22 +898,25 @@ tablaUsuarios?.addEventListener("click", (e) => {
   abrirModalRegistrar(nombre);
 });
 
+// ============================
 // Guardar vacuna (YA CON BD)
+// ============================
 formRegistrarVacuna?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const nombrePaciente = rvPaciente.value.trim();
-  const vacuna = rvVacuna.value.trim();
+  const opcion = rvVacuna?.selectedOptions?.[0];
+  const idVacuna = rvVacuna?.value || ""; // para cálculo (ya se usó antes)
+  const vacunaNombre = opcion?.dataset?.nombre || ""; // 🟢 esto es lo que requiere tu PHP
   const dosis = rvDosis.value.trim();
   const lote = rvLote.value.trim();
   const fecha = rvFecha.value;
   const obs = rvObs.value.trim();
 
-  if (!nombrePaciente || !vacuna || !dosis || !lote || !fecha) {
+  if (!nombrePaciente || !vacunaNombre || !dosis || !lote || !fecha) {
     alert("Por favor llena todos los campos obligatorios.");
     return;
   }
-
   if (!idCartillaActual) {
     alert("No se encontró el usuario para registrar la vacuna.");
     return;
@@ -854,8 +926,8 @@ formRegistrarVacuna?.addEventListener("submit", async (e) => {
     const form = new FormData();
     form.append("action", "registrar");
     form.append("id_usuario", idCartillaActual);
-    form.append("vacuna", vacuna);
-    form.append("dosis", dosis);
+    form.append("vacuna", vacunaNombre); // tu backend busca POR NOMBRE
+    form.append("dosis", dosis); // el backend la ignora y escribe la real en observaciones
     form.append("lote", lote);
     form.append("fecha", fecha);
     form.append("observaciones", obs);
@@ -864,12 +936,8 @@ formRegistrarVacuna?.addEventListener("submit", async (e) => {
       method: "POST",
       body: form,
     });
-
     const data = await resp.json();
-
-    if (!data.ok) {
-      throw new Error(data.error || "Error al registrar vacuna");
-    }
+    if (!data.ok) throw new Error(data.error || "Error al registrar vacuna");
 
     alert("Vacuna registrada correctamente.");
     cerrarModalRegistrar();
@@ -878,8 +946,6 @@ formRegistrarVacuna?.addEventListener("submit", async (e) => {
     alert("Error: " + err.message);
   }
 });
-
-
 
 //  VER CARTILLA POR USUARIO (Ya lo hice )
 
@@ -1135,8 +1201,8 @@ btnGuardarEdicion?.addEventListener("click", async () => {
       form.append("nombre", edUserNombre.value.trim());
       form.append("correo", edUserCorreo.value.trim());
       form.append("curp", edUserCurp.value.trim());
-      form.append("tipo", edUserTipo.value);       // admin | medico | usuario
-      form.append("estado", edUserEstado.value);   // activo | suspendido
+      form.append("tipo", edUserTipo.value); // admin | medico | usuario
+      form.append("estado", edUserEstado.value); // activo | suspendido
 
       const resp = await fetch("php/api_usuarios.php", {
         method: "POST",
@@ -1161,7 +1227,6 @@ btnGuardarEdicion?.addEventListener("click", async () => {
   modalEdicionAvanzada.classList.remove("open");
   filaUsuarioActual = null;
 });
-
 
 // =======================
 //  ELIMINAR USUARIO (API)
@@ -1207,7 +1272,7 @@ cargarVacunasEnSelect();
 
 // Qué filas queremos en la cartilla física
 const CARTILLA_MATRIZ = [
-  { clave: "BCG", nombre: "BCG", slots: ["1", "", "", "R"] },
+  { clave: "BCG", nombre: "BCG", slots: ["1", "", "", ""] },
   { clave: "HEPB", nombre: "Hepatitis B", slots: ["1", "2", "3", ""] },
   {
     clave: "PENTA",
@@ -1317,7 +1382,6 @@ async function cargarResumenCartilla() {
     }
 
     const dosisBD = Array.isArray(data2.data) ? data2.data : [];
-   
 
     // Aquí se dibujan las letras verdes y grises (1ª, 2ª, 3ª, Rª)
     renderCartillaMatrizSlots(dosisBD);
@@ -1333,8 +1397,7 @@ async function cargarResumenCartilla() {
 
 cargarResumenCartilla();
 
-
-
+// dosisBD = array de filas devueltas por api_vacunas.php?action=mis_vacunas
 // dosisBD = array de filas devueltas por api_vacunas.php?action=mis_vacunas
 function renderCartillaMatrizSlots(dosisBD) {
   const tbody = document.getElementById("tbodyCartillaMatriz");
@@ -1342,15 +1405,13 @@ function renderCartillaMatrizSlots(dosisBD) {
 
   tbody.innerHTML = "";
 
-  // Normalizamos datos: solo dosis aplicadas
+  // Solo dosis aplicadas
   const dosisAplicadas = (dosisBD || []).filter((d) => {
     return (d.estado || "").toUpperCase() === "APLICADA";
   });
 
   CARTILLA_MATRIZ.forEach((vac) => {
     const tr = document.createElement("tr");
-
-    // Columna nombre vacuna
     tr.innerHTML = `<td>${vac.nombre}</td>`;
 
     vac.slots.forEach((slotEtiqueta) => {
@@ -1358,9 +1419,8 @@ function renderCartillaMatrizSlots(dosisBD) {
       td.classList.add("slot");
 
       if (!slotEtiqueta) {
-        td.innerHTML = "&nbsp;"; // celda vacía
+        td.innerHTML = "&nbsp;";
       } else {
-        // ¿hay alguna dosis aplicada que coincida con este slot?
         const aplicada = dosisAplicadas.find((d) => {
           if (!d.clave_vacuna) return false;
           const clave = (d.clave_vacuna || "").toUpperCase();
@@ -1370,12 +1430,10 @@ function renderCartillaMatrizSlots(dosisBD) {
           const total = Number(d.total_dosis || 0);
 
           if (slotEtiqueta === "R") {
-            // Refuerzo: usamos la última dosis del esquema (total_dosis)
             if (!total) return false;
-            return num === total;
+            return num === total; // solo la ÚLTIMA dosis va en "Refuerzo"
           } else {
-            // 1, 2, 3...
-            return num === Number(slotEtiqueta);
+            return num === Number(slotEtiqueta); // 1, 2, 3
           }
         });
 

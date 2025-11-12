@@ -72,61 +72,121 @@ try {
         }
 
         // 2) Buscar un esquema_vacunas para esa vacuna (si tienes alguno)
-        $stmtEq = $conexion->prepare("
-            SELECT id_esquema, dosis_numero, total_dosis
-            FROM esquema_vacunas
-            WHERE id_vacuna = :id_vacuna
-            ORDER BY dosis_numero ASC
-            LIMIT 1
-        ");
-        $stmtEq->execute([':id_vacuna' => $idVacuna]);
-        $rowEq = $stmtEq->fetch(PDO::FETCH_ASSOC);
+        // ------------------------------------
+// 2) Resolver el esquema correcto (siguiente dosis) y evitar duplicados
+// ------------------------------------
 
-        $idEsquema   = $rowEq ? (int)$rowEq['id_esquema'] : null;
-        $dosisNum    = $rowEq ? (int)$rowEq['dosis_numero'] : null;
-        $totalDosis  = $rowEq ? (int)$rowEq['total_dosis'] : null;
+// ¿Esta vacuna tiene esquema definido?
+$stmtTieneEsq = $conexion->prepare("
+  SELECT COUNT(*) FROM esquema_vacunas WHERE id_vacuna = :id_vacuna
+");
+$stmtTieneEsq->execute([':id_vacuna' => $idVacuna]);
+$tieneEsquema = (int)$stmtTieneEsq->fetchColumn() > 0;
 
-        // En observaciones guardamos también el texto de dosis si lo mandas
-        $obsFinal = $obs;
-        if ($dosisTxt !== '') {
-            $obsFinal = trim($obsFinal . " | Dosis: " . $dosisTxt);
-        }
+$idEsquema   = null;
+$dosisNum    = null;
+$totalDosis  = null;
 
-        // 3) Insertar en aplicaciones_vacuna (tu tabla real)
-        $stmtIns = $conexion->prepare("
-            INSERT INTO aplicaciones_vacuna (
-                id_usuario,
-                id_esquema,
-                id_vacuna,
-                fecha_aplicacion,
-                lote,
-                observaciones,
-                estado,
-                id_registrada_por,
-                fecha_registro
-            ) VALUES (
-                :id_usuario,
-                :id_esquema,
-                :id_vacuna,
-                :fecha,
-                :lote,
-                :observaciones,
-                :estado,
-                :registrada_por,
-                NOW()
-            )
-        ");
+if ($tieneEsquema) {
+  // Buscar la PRÓXIMA dosis pendiente en el esquema para este usuario
+  $stmtNext = $conexion->prepare("
+    SELECT ev.id_esquema, ev.dosis_numero, ev.total_dosis
+    FROM esquema_vacunas ev
+    WHERE ev.id_vacuna = :id_vacuna
+      AND NOT EXISTS (
+        SELECT 1
+        FROM aplicaciones_vacuna av
+        WHERE av.id_usuario = :id_usuario
+          AND av.estado = 'APLICADA'
+          AND av.id_esquema = ev.id_esquema
+      )
+    ORDER BY ev.dosis_numero ASC
+    LIMIT 1
+  ");
+  $stmtNext->execute([
+    ':id_vacuna'  => $idVacuna,
+    ':id_usuario' => $id_usuario
+  ]);
+  $rowNext = $stmtNext->fetch(PDO::FETCH_ASSOC);
 
-        $stmtIns->execute([
-            ':id_usuario'     => $id_usuario,
-            ':id_esquema'     => $idEsquema,      // puede ser NULL
-            ':id_vacuna'      => $idVacuna,       // ✅ siempre lo tienes
-            ':fecha'          => $fecha,
-            ':lote'           => $lote ?: null,
-            ':observaciones'  => $obsFinal ?: null,
-            ':estado'         => 'APLICADA',
-            ':registrada_por' => $idUsuarioSesion
-        ]);
+  if ($rowNext) {
+    // Hay dosis pendiente: registrar esa
+    $idEsquema  = (int)$rowNext['id_esquema'];
+    $dosisNum   = (int)$rowNext['dosis_numero'];
+    $totalDosis = (int)$rowNext['total_dosis'];
+  } else {
+    // No hay dosis pendientes -> esquema completo
+    throw new Exception('Esquema completo: ya registraste todas las dosis de esta vacuna para este usuario.');
+  }
+} else {
+  // Sin esquema: tratar como single-shot y NO duplicar
+  $stmtDup = $conexion->prepare("
+    SELECT 1
+    FROM aplicaciones_vacuna
+    WHERE id_usuario = :id_usuario
+      AND id_vacuna  = :id_vacuna
+      AND estado     = 'APLICADA'
+    LIMIT 1
+  ");
+  $stmtDup->execute([
+    ':id_usuario' => $id_usuario,
+    ':id_vacuna'  => $idVacuna
+  ]);
+  if ($stmtDup->fetch()) {
+    throw new Exception('Ya existe un registro aplicado de esta vacuna para este usuario.');
+  }
+
+  // single-shot “virtual”: 1/1
+  $idEsquema  = null;
+  $dosisNum   = 1;
+  $totalDosis = 1;
+}
+
+// 2.4 Observaciones: ignoramos la dosis enviada por el front y escribimos la real
+$obsFinal = trim($obs);
+$obsDosis = ($dosisNum !== null && $totalDosis !== null) ? ($dosisNum . ' / ' . $totalDosis) : null;
+if ($obsDosis) {
+  $obsFinal = $obsFinal ? ($obsFinal . " | Dosis: " . $obsDosis) : ("Dosis: " . $obsDosis);
+}
+
+// ------------------------------------
+// 3) Insertar en aplicaciones_vacuna
+// ------------------------------------
+$stmtIns = $conexion->prepare("
+  INSERT INTO aplicaciones_vacuna (
+    id_usuario,
+    id_esquema,
+    id_vacuna,
+    fecha_aplicacion,
+    lote,
+    observaciones,
+    estado,
+    id_registrada_por,
+    fecha_registro
+  ) VALUES (
+    :id_usuario,
+    :id_esquema,
+    :id_vacuna,
+    :fecha,
+    :lote,
+    :observaciones,
+    :estado,
+    :registrada_por,
+    NOW()
+  )
+");
+
+$stmtIns->execute([
+  ':id_usuario'     => $id_usuario,
+  ':id_esquema'     => $idEsquema,         // puede ser NULL
+  ':id_vacuna'      => $idVacuna,          // SIEMPRE seteado
+  ':fecha'          => $fecha,
+  ':lote'           => $lote ?: null,
+  ':observaciones'  => $obsFinal ?: null,  // incluye "Dosis: X / Y"
+  ':estado'         => 'APLICADA',
+  ':registrada_por' => $idUsuarioSesion
+]);
+
 
         echo json_encode(['ok' => true, 'message' => 'Vacuna registrada correctamente.']);
         exit;
@@ -445,11 +505,53 @@ try {
         exit;
     }
 
+
+    // ============================
+    //  NUEVA ACCIÓN: dosis_siguiente
+    //  GET php/api_vacunas.php?action=dosis_siguiente&id_usuario=XX&id_vacuna=YY
+    // ============================
+    if ($method === 'GET' && $action === 'dosis_siguiente') {
+        $idUsuario = (int)($_GET['id_usuario'] ?? 0);
+        $idVacuna  = (int)($_GET['id_vacuna'] ?? 0);
+
+        if (!$idUsuario || !$idVacuna) {
+            throw new Exception('id_usuario e id_vacuna son obligatorios.');
+        }
+
+        // Contar cuántas dosis aplicadas tiene este usuario de esta vacuna
+        $sql = "
+        SELECT COUNT(*) AS aplicadas, 
+               COALESCE(MAX(ev.total_dosis), 1) AS total_dosis
+        FROM aplicaciones_vacuna av
+        LEFT JOIN esquema_vacunas ev ON av.id_esquema = ev.id_esquema
+        WHERE av.id_usuario = :id_usuario
+          AND COALESCE(av.id_vacuna, ev.id_vacuna) = :id_vacuna
+          AND av.estado = 'APLICADA'
+    ";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([
+            ':id_usuario' => $idUsuario,
+            ':id_vacuna'  => $idVacuna
+        ]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $aplicadas = (int)($row['aplicadas'] ?? 0);
+        $total     = (int)($row['total_dosis'] ?? 1);
+        $siguiente = min($aplicadas + 1, $total);
+
+        echo json_encode([
+            'ok' => true,
+            'dosis_siguiente' => "{$siguiente} / {$total}"
+        ]);
+        exit;
+    }
+
+
     // -------- Acción no reconocida --------
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Acción no válida']);
     exit;
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
