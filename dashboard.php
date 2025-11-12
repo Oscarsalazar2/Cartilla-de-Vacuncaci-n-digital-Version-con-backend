@@ -287,7 +287,7 @@ if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
                 type="text"
                 id="rvDosis"
                 placeholder="Ej. 2 / 3"
-                required />
+                 />
             </label>
 
             <label class="perfil-field perfil-field-full">

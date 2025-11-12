@@ -442,7 +442,7 @@ function renderCartillaMatrizDemo(vacunasUsuario) {
 
   tbody.innerHTML = "";
 
-  CARTILLA_MATRIZ.forEach((vac) => {
+  CARTILLA_MATRIZ_DEMO.forEach((vac) => {
     const tr = document.createElement("tr");
 
     // Columna nombre

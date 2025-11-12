@@ -334,21 +334,29 @@ async function cargarUsuariosDesdeAPI() {
     }
 
     data.data.forEach((u) => {
-      const nombreCompleto = [u.nombre, u.apellido_paterno, u.apellido_materno]
-        .filter(Boolean)
-        .join(" ");
+      // 1) Nombre sin duplicados (usa el que devuelve la API si existe)
+      const nombreCompleto =
+        u.nombre_completo && u.nombre_completo.trim()
+          ? u.nombre_completo
+          : [u.nombre, u.apellido_paterno, u.apellido_materno]
+              .filter(Boolean)
+              .join(" ");
 
+      // 2) Tipo/rol para dataset y filtros (usa rol_slug si viene)
+      const tipo = u.rol_slug
+        ? u.rol_slug // "admin" | "medico" | "usuario"
+        : u.rol_nombre === "Administrador"
+        ? "admin"
+        : u.rol_nombre === "Médico"
+        ? "medico"
+        : "usuario";
+
+      // 3) Estatus y contadores
       const estatus = (u.estatus || "").toUpperCase();
       if (estatus === "PENDIENTE") pendientes++;
       if (estatus === "ACTIVO") activos++;
 
-      const tipo =
-        u.rol_nombre === "Administrador"
-          ? "admin"
-          : u.rol_nombre === "Médico"
-          ? "medico"
-          : "usuario";
-
+      // 4) Construir la fila principal
       const tr = document.createElement("tr");
       tr.dataset.userId = u.id_usuario;
       tr.dataset.userNombre = nombreCompleto;
@@ -357,90 +365,69 @@ async function cargarUsuariosDesdeAPI() {
       tr.dataset.tipo = tipo;
 
       tr.innerHTML = `
-        <td>${nombreCompleto}</td>
-        <td>${u.rol_nombre}</td>
-        <td>${u.curp || "N/D"}</td>
-        <td>${u.correo || "N/D"}</td>
-        <td>
-          <div class="usuarios-estado-acciones">
-            <span class="badge ${
-              estatus === "ACTIVO"
-                ? "badge-activo"
-                : estatus === "SUSPENDIDO"
-                ? "badge-suspendido"
-                : "badge-pendiente"
-            }">
-              ${
-                estatus === "PENDIENTE"
-                  ? "Pendiente"
-                  : estatus === "ACTIVO"
-                  ? "Activo"
-                  : estatus || "Desconocido"
-              }
-            </span>
-            <div class="usuarios-actions">
-              <button
-                class="btn-usr-icon ver-cartilla-usuario"
-                type="button"
-                title="Ver cartilla"
-              >
-                <i class="fa-solid fa-syringe"></i>
-              </button>
-              <button
-                class="btn-usr-icon agregar-vacuna-usuario"
-                type="button"
-                title="Registrar vacuna"
-                data-user-nombre="${nombreCompleto}"
-                data-user-email="${u.correo || ""}"
-              >
-                <i class="fa-solid fa-plus"></i>
-              </button>
-              <button
-                class="btn-usr-icon editar-usuario"
-                type="button"
-                title="Editar"
-              >
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button
-                class="btn-usr-icon eliminar-usuario"
-                type="button"
-                title="Eliminar"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        </td>
-      `;
-
-      //tablaBody.appendChild(tr);
+    <td>${nombreCompleto}</td>
+    <td>${u.rol_nombre}</td>
+    <td>${u.curp || "N/D"}</td>
+    <td>${u.correo || "N/D"}</td>
+    <td>
+      <div class="usuarios-estado-acciones">
+        <span class="badge ${
+          estatus === "ACTIVO"
+            ? "badge-activo"
+            : estatus === "SUSPENDIDO"
+            ? "badge-suspendido"
+            : "badge-pendiente"
+        }">
+          ${
+            estatus === "PENDIENTE"
+              ? "Pendiente"
+              : estatus === "ACTIVO"
+              ? "Activo"
+              : estatus || "Desconocido"
+          }
+        </span>
+        <div class="usuarios-actions">
+          <button class="btn-usr-icon ver-cartilla-usuario" type="button" title="Ver cartilla">
+            <i class="fa-solid fa-syringe"></i>
+          </button>
+          <button class="btn-usr-icon agregar-vacuna-usuario" type="button" title="Registrar vacuna"
+            data-user-nombre="${nombreCompleto}" data-user-email="${
+        u.correo || ""
+      }">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <button class="btn-usr-icon editar-usuario" type="button" title="Editar">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button class="btn-usr-icon eliminar-usuario" type="button" title="Eliminar">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </td>
+  `;
 
       if (estatus !== "PENDIENTE") {
-        // Pa cumplirle el gusto a mi mujer
-        //bueno es obvio que dice que si es difente que PENDIENTE pues enseña la tabla
         tablaBody.appendChild(tr);
       }
 
+      // 5) Fila para la tabla de pendientes (usa también nombreCompleto)
       if (estatus === "PENDIENTE" && adminPendientesBody) {
         const trPend = document.createElement("tr");
         trPend.innerHTML = `
-          <td>${nombreCompleto}</td>
-          <td>${u.correo || "N/D"}</td>
-          <td>${u.curp || "N/D"}</td>
-          <td>
-            <span class="badge badge-pendiente">Pendiente</span>
-          </td>
-          <td>
-            <button
-              class="btn-table btn-table-primary"
-              data-activar-usuario="${u.id_usuario}"
-            >
-              Activar
-            </button>
-            <button class="btn-table btn-table-ghost">Ver</button>
-          </td>
-        `;
+      <td>${nombreCompleto}</td>
+      <td>${u.correo || "N/D"}</td>
+      <td>${u.curp || "N/D"}</td>
+      <td><span class="badge badge-pendiente">Pendiente</span></td>
+      <td>
+        <button class="btn-table btn-table-primary" data-activar-usuario="${
+          u.id_usuario
+        }">
+          Activar
+        </button>
+        <button class="btn-table btn-table-ghost">Ver</button>
+      </td>
+    `;
         adminPendientesBody.appendChild(trPend);
       }
     });
@@ -457,31 +444,124 @@ async function cargarUsuariosDesdeAPI() {
 
 async function cargarVacunasEnSelect() {
   const select = document.getElementById("rvVacuna");
+  const selectMarca = document.getElementById("rvMarca");
   if (!select) return;
 
-  select.innerHTML = `<option value="">Cargando...</option>`;
+  // Estados iniciales
+  select.innerHTML = `<option value="">Seleccionar...</option>`;
+  if (selectMarca) {
+    selectMarca.innerHTML = `<option value="">Seleccionar...</option>`;
+    selectMarca.disabled = true;
+  }
 
   try {
+    // Cargar vacunas desde tu API
     const resp = await fetch("php/api_vacunas.php?action=catalogo_vacunas");
     const data = await resp.json();
     if (!data.ok)
       throw new Error(data.error || "Error en API catalogo_vacunas");
 
     const vacunas = Array.isArray(data.data) ? data.data : [];
-    select.innerHTML = `<option value="">Seleccionar...</option>`;
 
+    // value = id_vacuna, label = nombre
     vacunas.forEach((v) => {
       const opt = document.createElement("option");
-      // value = id_vacuna para poder calcular dosis en la API
-      opt.value = String(v.id_vacuna);
-      // guardamos el nombre para el POST
+      opt.value = v.id_vacuna; // id numérico
       opt.dataset.nombre = v.nombre;
       opt.textContent = v.nombre;
+      opt.dataset.clave = v.clave || "";
       select.appendChild(opt);
+    });
+
+    // ✅ Listener: cuando cambie la vacuna, cargar marcas asociadas
+    select.addEventListener("change", async () => {
+      if (!selectMarca) return;
+
+      const idVacuna = select.value;
+      selectMarca.innerHTML = `<option value="">Seleccionar...</option>`;
+
+      if (!idVacuna) {
+        selectMarca.disabled = true;
+        return;
+      }
+
+      try {
+        const respM = await fetch(
+          `php/api_marcas.php?action=por_vacuna&id_vacuna=${encodeURIComponent(
+            idVacuna
+          )}`
+        );
+        const dataM = await respM.json();
+
+        if (dataM.ok && Array.isArray(dataM.data) && dataM.data.length > 0) {
+          dataM.data.forEach((m) => {
+            const opt = document.createElement("option");
+            opt.value = m.id_marca;
+            opt.textContent = m.nombre;
+            selectMarca.appendChild(opt);
+          });
+          selectMarca.disabled = false;
+        } else {
+          selectMarca.innerHTML = `<option value="">Sin marcas disponibles</option>`;
+          selectMarca.disabled = true;
+        }
+      } catch (err) {
+        console.error("Error cargando marcas:", err);
+        selectMarca.innerHTML = `<option value="">Error al cargar</option>`;
+        selectMarca.disabled = true;
+      }
     });
   } catch (err) {
     console.error("Error cargando catálogo de vacunas:", err);
     select.innerHTML = `<option value="">Error al cargar vacunas</option>`;
+  }
+}
+
+//
+async function cargarMarcasPorVacuna(idVacuna) {
+  const selectMarca = document.getElementById("rvMarca");
+  if (!selectMarca) return;
+
+  if (!idVacuna) {
+    selectMarca.innerHTML = `<option value="">Seleccionar...</option>`;
+    selectMarca.disabled = true;
+    return;
+  }
+
+  selectMarca.innerHTML = `<option value="">Cargando...</option>`;
+  selectMarca.disabled = true;
+
+  try {
+    const resp = await fetch(
+      `php/api_vacunas.php?action=marcas_por_vacuna&id_vacuna=${encodeURIComponent(
+        idVacuna
+      )}`
+    );
+    const data = await resp.json();
+    if (!data.ok)
+      throw new Error(data.error || "Error en API marcas_por_vacuna");
+
+    const marcas = Array.isArray(data.data) ? data.data : [];
+
+    if (marcas.length === 0) {
+      selectMarca.innerHTML = `<option value="">Sin marcas registradas</option>`;
+      selectMarca.disabled = true; // no hay marcas
+      return;
+    }
+
+    // Poblar marcas
+    selectMarca.innerHTML = `<option value="">Seleccionar...</option>`;
+    marcas.forEach((m) => {
+      const opt = document.createElement("option");
+      opt.value = m.id_marca; // id_marca
+      opt.textContent = m.nombre;
+      selectMarca.appendChild(opt);
+    });
+    selectMarca.disabled = false;
+  } catch (err) {
+    console.error("Error cargando marcas:", err);
+    selectMarca.innerHTML = `<option value="">Error al cargar marcas</option>`;
+    selectMarca.disabled = true;
   }
 }
 
@@ -788,17 +868,14 @@ async function calcularDosisSiguiente() {
 }
 
 // Escuchar cuando cambie la vacuna seleccionada
-rvVacuna?.addEventListener("change", calcularDosisSiguiente);
+rvVacuna?.addEventListener("change", async () => {
+  const idVacuna = rvVacuna.value;
+  await cargarMarcasPorVacuna(idVacuna); // poblar marcas según vacuna
+  calcularDosisSiguiente(); // y calcular dosis siguiente
+});
 
 // También llamar cuando se abra el modal de registro
-function abrirModalRegistrar(nombrePaciente) {
-  if (!modalRegistrarVacuna) return;
-  rvPaciente.value = nombrePaciente || "";
-  modalRegistrarVacuna.classList.add("open");
 
-  // recalcula automáticamente la dosis después de abrir
-  setTimeout(calcularDosisSiguiente, 200);
-}
 
 // ============================
 // Abrir / cerrar modal
@@ -806,22 +883,44 @@ function abrirModalRegistrar(nombrePaciente) {
 function abrirModalRegistrar(nombrePaciente) {
   if (!modalRegistrarVacuna) return;
 
-  // limpiar campos
-  rvPaciente.value = nombrePaciente || "";
-  if (rvVacuna) rvVacuna.value = "";
+  // Paciente
+  if (rvPaciente) rvPaciente.value = nombrePaciente || "";
+
+  // Vacuna y dosis
+  if (rvVacuna) rvVacuna.value = ""; // limpia selección
   if (rvDosis) {
     rvDosis.value = "";
-    rvDosis.readOnly = true;
+    rvDosis.readOnly = true; // siempre auto-calculada
   }
+
+  // Marca (se llena al cambiar la vacuna)
+  if (typeof rvMarca !== "undefined" && rvMarca) {
+    rvMarca.innerHTML = `<option value="">Seleccionar...</option>`;
+    rvMarca.disabled = true;
+  }
+
+  // Otros campos
   if (rvLote) rvLote.value = "";
   if (rvFecha) rvFecha.value = "";
   if (rvObs) rvObs.value = "";
 
+  // Abre modal
   modalRegistrarVacuna.classList.add("open");
 
-  // Si ya hay un usuario seleccionado y la vacuna estuviera preseleccionada,
-  // recalcula en el siguiente ciclo de eventos
-  setTimeout(calcularDosisSiguiente, 0);
+  // Si (por alguna razón) ya hubiera una vacuna preseleccionada,
+  // recalculamos la dosis y refrescamos marcas en el siguiente tick.
+  setTimeout(() => {
+    if (rvVacuna && rvVacuna.value) {
+      // dispara el listener de change que carga marcas y luego calcula dosis
+      const ev = new Event("change", { bubbles: true });
+      rvVacuna.dispatchEvent(ev);
+
+      // por si tu listener de change no llama al cálculo de dosis:
+      if (typeof calcularDosisSiguiente === "function") {
+        calcularDosisSiguiente();
+      }
+    }
+  }, 0);
 }
 
 function cerrarModalRegistrar() {
@@ -904,14 +1003,20 @@ tablaUsuarios?.addEventListener("click", (e) => {
 formRegistrarVacuna?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nombrePaciente = rvPaciente.value.trim();
-  const opcion = rvVacuna?.selectedOptions?.[0];
-  const idVacuna = rvVacuna?.value || ""; // para cálculo (ya se usó antes)
-  const vacunaNombre = opcion?.dataset?.nombre || ""; // 🟢 esto es lo que requiere tu PHP
-  const dosis = rvDosis.value.trim();
-  const lote = rvLote.value.trim();
-  const fecha = rvFecha.value;
-  const obs = rvObs.value.trim();
+  const nombrePaciente = rvPaciente?.value?.trim() || "";
+  const opcion = rvVacuna?.selectedOptions?.[0] || null;
+
+  // usa data-nombre, o si no, el texto de la opción
+  const vacunaNombre = (
+    opcion?.dataset?.nombre ||
+    opcion?.textContent ||
+    ""
+  ).trim();
+
+  const dosis = rvDosis?.value?.trim() || "";
+  const lote = rvLote?.value?.trim() || "";
+  const fecha = rvFecha?.value || "";
+  const obs = rvObs?.value?.trim() || "";
 
   if (!nombrePaciente || !vacunaNombre || !dosis || !lote || !fecha) {
     alert("Por favor llena todos los campos obligatorios.");
@@ -926,11 +1031,17 @@ formRegistrarVacuna?.addEventListener("submit", async (e) => {
     const form = new FormData();
     form.append("action", "registrar");
     form.append("id_usuario", idCartillaActual);
-    form.append("vacuna", vacunaNombre); // tu backend busca POR NOMBRE
-    form.append("dosis", dosis); // el backend la ignora y escribe la real en observaciones
+    form.append("id_vacuna", rvVacuna.value);
+    form.append("vacuna", opcion.dataset.clave);
+    form.append("dosis", dosis); // el backend la recalcula y la pone en observaciones
     form.append("lote", lote);
     form.append("fecha", fecha);
     form.append("observaciones", obs);
+
+    // si también quieres mandar la marca si la tienes:
+    if (typeof rvMarca !== "undefined" && rvMarca?.value) {
+      form.append("marca", rvMarca.value);
+    }
 
     const resp = await fetch("php/api_vacunas.php", {
       method: "POST",
@@ -961,7 +1072,7 @@ tablaUsuarios?.addEventListener("click", async (e) => {
   const idUsuario = fila.dataset.userId || "";
 
   emailCartillaActual = correo;
-  idCartillaActual = idUsuario;
+  idCartillaActual = fila.dataset.userId;
 
   if (cartillaNombreUsuario) cartillaNombreUsuario.textContent = nombre;
   if (cartillaEmailUsuario) cartillaEmailUsuario.textContent = correo;
@@ -1338,11 +1449,33 @@ async function cargarResumenCartilla() {
           : "Esquema aún no configurado";
     }
 
-    // Próximas dosis (de momento genérico, como lo tenías)
     if (proxDosisEl) proxDosisEl.textContent = r.proximas_dosis ?? 0;
-    if (proxTagEl)
-      proxTagEl.textContent =
-        "Próximas dosis aún no calculadas de forma detallada.";
+
+    if (proxTagEl) {
+      const detalle = Array.isArray(r.proximas_detalle)
+        ? r.proximas_detalle
+        : [];
+      if (!detalle.length) {
+        proxTagEl.textContent =
+          "No hay próximas dosis programadas en los proximos 30 días.";
+      } else {
+        // muestra un resumen corto (primeras 3)
+        const top3 = detalle.slice(0, 3).map((d) => {
+          const etiqueta = d.total_dosis
+            ? `${d.dosis_numero} / ${d.total_dosis}`
+            : `Dosis ${d.dosis_numero}`;
+          // due_in en meses => texto amigable
+          const cuando =
+            d.due_in === 0
+              ? "este mes"
+              : d.due_in === 1
+              ? "en 1 mes"
+              : `en ${d.due_in} meses`;
+          return `${d.vacuna} (${etiqueta}) ${cuando}`;
+        });
+        proxTagEl.textContent = top3.join(" · ");
+      }
+    }
 
     // 🔴 ALERTAS (con texto "Revisa: ...")
     const alertas = Number(r.alertas || 0);
