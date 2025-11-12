@@ -11,10 +11,31 @@ if (!isset($_SESSION['id_usuario'])) {
 $idUsuario = $_SESSION['id_usuario'];
 
 try {
-  $sql = "SELECT u.*, r.clave AS rol_clave, r.nombre AS rol_nombre
-            FROM usuarios u
-            JOIN roles r ON u.id_rol = r.id_rol
-            WHERE u.id_usuario = :id";
+  $sql = "SELECT
+            u.id_usuario,
+            u.nombre,
+            u.apellido_paterno,
+            u.apellido_materno,
+            u.correo,
+            u.curp,
+            u.id_rol,
+            u.celular,
+            u.telefono,
+            u.calle,
+            u.num_exterior,
+            u.num_interior,
+            u.colonia,
+            u.ciudad,
+            u.estado,
+            u.cp,
+            u.entre_calles,
+            u.fecha_nacimiento,
+            r.clave AS rol_clave,
+            r.nombre AS rol_nombre
+          FROM usuarios u
+          JOIN roles r ON u.id_rol = r.id_rol
+          WHERE u.id_usuario = :id";
+
   $stmt = $conexion->prepare($sql);
   $stmt->execute([':id' => $idUsuario]);
   $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -28,8 +49,8 @@ try {
   // Nombre completo
   $nombreCompleto = trim(
     ($usuario['nombre'] ?? '') . ' ' .
-      ($usuario['apellido_paterno'] ?? '') . ' ' .
-      ($usuario['apellido_materno'] ?? '')
+    ($usuario['apellido_paterno'] ?? '') . ' ' .
+    ($usuario['apellido_materno'] ?? '')
   );
   if ($nombreCompleto === '') {
     $nombreCompleto = 'Usuario';
@@ -38,7 +59,7 @@ try {
   $correo    = $usuario['correo'] ?? '';
   $curp      = $usuario['curp']   ?? '';
   $rolNombre = $usuario['rol_nombre'] ?? 'Usuario';
-  $rolClave  = strtolower($usuario['rol_clave'] ?? 'Usuario'); // 'admin','medico','usuario'
+  $rolClave  = strtolower($usuario['rol_clave'] ?? 'usuario'); // 'admin','medico','usuario'
 
   $celular   = $usuario['celular'] ?? '';
   $telefono  = $usuario['telefono'] ?? '';
@@ -52,7 +73,6 @@ try {
   $entreCalles = $usuario['entre_calles'] ?? '';
   $fechaNacimiento = $usuario['fecha_nacimiento'] ?? null;
 
-
   // Iniciales para avatar
   function iniciales($nombre)
   {
@@ -61,18 +81,22 @@ try {
     if (count($parts) === 1) return mb_strtoupper(mb_substr($parts[0], 0, 1));
     return mb_strtoupper(
       mb_substr($parts[0], 0, 1) .
-        mb_substr($parts[1], 0, 1)
+      mb_substr($parts[1], 0, 1)
     );
   }
   $avatarIniciales = iniciales($nombreCompleto);
+
 } catch (PDOException $e) {
   echo "Error al cargar el perfil: " . $e->getMessage();
   exit;
 }
+
+// Slug de rol para JS / front
 $rolSlug = 'usuario';
 if ($_SESSION['id_rol'] == 1) $rolSlug = 'admin';
 if ($_SESSION['id_rol'] == 2) $rolSlug = 'medico';
 ?>
+
 
 
 
